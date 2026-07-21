@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Mapa global de plataformas, operadores y sistemas de extinción aérea de incendios forestales.">
+<title>Mapa global de extinción aérea de incendios · 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans+Condensed:wght@600;700&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0B1116; --panel:#131C22; --panel2:#18232A; --line:#26343D; --line2:#334552;
+  --fg:#E9EFF2; --dim:#8FA3AF; --dim2:#647A88;
+  --indigo:#4C63E6; --violet:#8A54E0; --retard:#E8395C; --amber:#F2A43A; --hot:#FFF0D2;
+  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --cond:"IBM Plex Sans Condensed","Helvetica Neue",Arial,sans-serif;
+  --body:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--ink);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.wrap{max-width:1280px;margin:0 auto;padding:0 24px}
+
+/* ── masthead ───────────────────────────────── */
+.mast{padding:64px 0 0;border-bottom:1px solid var(--line)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim2)}
+h1{font-family:var(--cond);font-weight:700;font-size:clamp(38px,6.4vw,76px);line-height:.94;letter-spacing:-.02em;text-transform:uppercase;margin:14px 0 0}
+h1 em{font-style:normal;color:var(--retard)}
+.lede{max-width:62ch;color:var(--dim);margin:20px 0 0;font-size:16.5px}
+.stats{display:flex;flex-wrap:wrap;gap:0;margin:38px 0 0;border-top:1px solid var(--line)}
+.stat{flex:1 1 150px;padding:16px 20px 18px;border-right:1px solid var(--line)}
+.stat:last-child{border-right:0}
+.stat b{display:block;font-family:var(--cond);font-size:32px;font-weight:700;line-height:1}
+.stat span{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--dim2)}
+
+/* ── thermal ramp (signature) ───────────────── */
+.ramp{display:flex;margin:0;border-top:1px solid var(--line)}
+.ramp button{flex:1;background:transparent;border:0;border-right:1px solid var(--line);padding:0;cursor:pointer;text-align:left;font-family:var(--mono);color:var(--dim);transition:background .15s}
+.ramp button:last-child{border-right:0}
+.ramp button:hover{background:var(--panel)}
+.ramp button.on{background:var(--panel2);color:var(--fg)}
+.ramp .bar{height:5px;display:block}
+.ramp .lbl{display:block;padding:11px 14px 13px;font-size:10.5px;letter-spacing:.11em;text-transform:uppercase}
+.ramp .n{color:var(--dim2)}
+
+/* ── controls ───────────────────────────────── */
+.controls{position:sticky;top:0;z-index:20;background:rgba(11,17,22,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:12px 0}
+.crow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;background:var(--panel);border:1px solid var(--line);color:var(--dim);padding:7px 12px;cursor:pointer;transition:.15s}
+.chip:hover{border-color:var(--line2);color:var(--fg)}
+.chip.on{background:var(--fg);color:var(--ink);border-color:var(--fg)}
+input[type=search]{font-family:var(--mono);font-size:12px;background:var(--panel);border:1px solid var(--line);color:var(--fg);padding:7px 12px;min-width:210px;flex:1 1 210px}
+input[type=search]:focus{outline:none;border-color:var(--retard)}
+.sep{width:1px;align-self:stretch;background:var(--line);margin:0 4px}
+
+/* ── segment headers ────────────────────────── */
+.seg{margin:56px 0 20px;padding-top:14px;border-top:2px solid var(--fg);display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+.seg h2{font-family:var(--cond);font-weight:700;font-size:26px;text-transform:uppercase;letter-spacing:.01em;margin:0}
+.seg p{margin:0;color:var(--dim);font-size:14px;flex:1 1 340px;min-width:260px}
+.seg .cnt{font-family:var(--mono);font-size:11px;color:var(--dim2);letter-spacing:.1em}
+
+/* ── cards ──────────────────────────────────── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px}
+.card{background:var(--panel);border:1px solid var(--line);display:flex;flex-direction:column;position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--m)}
+.shot{aspect-ratio:16/10;background:var(--panel2);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;cursor:zoom-in}
+.shot img{width:100%;height:100%;object-fit:cover;display:block}
+.shot .ph{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim2);border:1px dashed var(--line2);padding:10px 16px}
+.shot:hover .ph{color:var(--fg);border-color:var(--dim)}
+.shot::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,17,22,0) 55%,rgba(11,17,22,.46));pointer-events:none;opacity:.7}
+.car-btn,.expand-btn,.dialog-close{position:absolute;z-index:3;border:1px solid rgba(233,239,242,.34);background:rgba(11,17,22,.78);backdrop-filter:blur(8px);color:var(--fg);cursor:pointer;transition:background .15s,border-color .15s,transform .15s}
+.car-btn{top:50%;width:36px;height:42px;transform:translateY(-50%);font-size:25px;line-height:1;padding:0}
+.car-btn:hover{background:rgba(11,17,22,.96);border-color:var(--fg)}
+.car-btn.prev{left:10px}.car-btn.next{right:10px}
+.car-count{position:absolute;z-index:3;right:10px;bottom:10px;padding:4px 8px;background:rgba(11,17,22,.78);border:1px solid rgba(233,239,242,.25);font-family:var(--mono);font-size:9px;letter-spacing:.12em;color:var(--fg)}
+.expand-btn{top:10px;right:10px;padding:6px 9px;font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase}
+.expand-btn:hover{background:rgba(11,17,22,.96);border-color:var(--fg)}
+.cbody{padding:16px 18px 14px;flex:1;display:flex;flex-direction:column}
+.cname{font-family:var(--cond);font-weight:700;font-size:19px;line-height:1.12;text-transform:uppercase;letter-spacing:.005em}
+.cprod{font-family:var(--mono);font-size:11.5px;color:var(--retard);margin-top:5px;letter-spacing:.02em}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0 0}
+.tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;padding:3px 7px;border:1px solid var(--line2);color:var(--dim)}
+.tag.u{border-color:var(--retard);color:var(--retard)}
+.tag.m{border-color:var(--dim2);color:var(--dim)}
+.tag.b{border-color:var(--amber);color:var(--amber)}
+.mat{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;padding:3px 7px;border:1px solid var(--m);color:var(--m)}
+dl{margin:14px 0 0;font-family:var(--mono);font-size:11.5px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px}
+dt{color:var(--dim2);letter-spacing:.06em;text-transform:uppercase;font-size:10px;padding-top:1px}
+dd{margin:0;color:var(--fg)}
+.note{margin:14px 0 0;font-size:13.5px;color:var(--dim);line-height:1.55;flex:1}
+.links{display:flex;gap:14px;margin:14px 0 0;padding-top:12px;border-top:1px solid var(--line);font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase}
+.links a{color:var(--dim2);text-decoration:none}
+.links a:hover{color:var(--retard)}
+
+/* ── ficha ampliada ─────────────────────────── */
+body.modal-open{overflow:hidden}
+.card-dialog{width:min(1120px,calc(100vw - 32px));max-width:none;height:min(760px,calc(100vh - 32px));max-height:none;margin:auto;padding:0;border:1px solid var(--line2);background:var(--panel);color:var(--fg);box-shadow:0 28px 90px rgba(0,0,0,.65)}
+.card-dialog::backdrop{background:rgba(3,7,10,.84);backdrop-filter:blur(5px)}
+.dialog-shell{height:100%;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(340px,.75fr);position:relative;border-top:3px solid var(--m)}
+.dialog-media{min-width:0;background:#080d10;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.dialog-media img{width:100%;height:100%;object-fit:contain;display:block}
+.dialog-media .ph{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--dim2);border:1px dashed var(--line2);padding:12px 18px}
+.dialog-media .car-btn{width:44px;height:52px}
+.dialog-media .car-count{bottom:16px;right:16px}
+.dialog-close{top:12px;right:12px;width:38px;height:38px;font-size:23px;line-height:1}
+.dialog-close:hover{background:var(--fg);color:var(--ink);border-color:var(--fg)}
+.dialog-body{padding:58px 34px 32px;overflow-y:auto}
+.dialog-kicker{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim2);margin-bottom:12px}
+.dialog-body .cname{font-size:clamp(28px,3vw,42px)}
+.dialog-body .cprod{font-size:13px;margin-top:9px}
+.dialog-body dl{font-size:12px;gap:8px 16px;margin-top:24px}
+.dialog-body .note{font-size:15px;line-height:1.65;margin-top:24px}
+.dialog-body .links{margin-top:24px}
+
+/* ── table view ─────────────────────────────── */
+.tablewrap{overflow-x:auto;border:1px solid var(--line)}
+table{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:11.5px;white-space:nowrap}
+th{text-align:left;font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--dim2);padding:11px 14px;border-bottom:1px solid var(--line2);background:var(--panel2);position:sticky;top:0}
+td{padding:9px 14px;border-bottom:1px solid var(--line);color:var(--dim)}
+td.k{color:var(--fg)}
+tr:hover td{background:var(--panel)}
+.dot{display:inline-block;width:7px;height:7px;margin-right:7px;vertical-align:middle}
+
+/* ── prose ──────────────────────────────────── */
+.prose{max-width:74ch;margin:0 0 0}
+.prose h3{font-family:var(--cond);font-weight:700;font-size:21px;text-transform:uppercase;margin:38px 0 10px}
+.prose h4{font-family:var(--mono);font-size:12px;letter-spacing:.11em;text-transform:uppercase;color:var(--retard);margin:26px 0 6px;font-weight:500}
+.prose p{margin:0 0 14px;color:#C9D6DD}
+.prose li{margin:0 0 8px;color:#C9D6DD}
+.prose ul{padding-left:20px}
+.prose strong{color:var(--fg);font-weight:600}
+.callout{border-left:3px solid var(--amber);background:var(--panel);padding:18px 22px;margin:24px 0}
+.callout p:last-child{margin-bottom:0}
+.num{font-family:var(--mono);color:var(--amber)}
+footer{margin-top:80px;padding:28px 0 60px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11px;color:var(--dim2);line-height:1.8}
+section{scroll-margin-top:70px}
+@media (max-width:640px){
+  .wrap{padding:0 16px}
+  .stat{flex:1 1 50%;border-bottom:1px solid var(--line)}
+  .ramp{flex-wrap:wrap}
+  .ramp button{flex:1 1 33%}
+  .card-dialog{width:100vw;height:100dvh;border:0}
+  .dialog-shell{grid-template-columns:1fr;grid-template-rows:minmax(260px,42vh) 1fr}
+  .dialog-body{padding:28px 22px 34px}
+  .dialog-close{position:fixed;top:12px;right:12px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto}}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="mast">
+    <div class="eyebrow">Investigación de mercado · Julio 2026 · Confidencial</div>
+    <h1>Quién apaga<br>fuegos <em>desde el aire</em></h1>
+    <p class="lede">Inventario completo de plataformas y sistemas de extinción aérea de incendios forestales en el mundo: fabricantes, operadores, sistemas autónomos y la capa de detección que los dispara. Ordenado por madurez real, no por lo que promete la web de cada uno.</p>
+    <div class="stats" id="stats"></div>
+    <div class="ramp" id="ramp"></div>
+  </header>
+</div>
+
+<div class="controls">
+  <div class="wrap crow" id="controls"></div>
+</div>
+
+<div class="wrap">
+  <main id="out"></main>
+
+  <section id="analisis" style="margin-top:80px">
+    <div class="seg"><h2>Lectura del mapa</h2><p>Qué dicen estos datos sobre la idea de una flota autónoma que recoge agua del mar.</p></div>
+    <div class="prose">
+
+      <h3>1. El tamaño real del mercado</h3>
+      <p>Hay que separar dos mercados que se confunden constantemente. El de <strong>servicios de extinción aérea</strong> (lo que cobran los operadores por hora de vuelo y por disponibilidad) vale del orden de <span class="num">1.500 a 1.700 millones de dólares</span> en 2026, y crece a un <span class="num">5 a 7 % anual</span> hasta los 2.200 a 2.600 millones a inicios de la próxima década. El de <strong>plataformas y conversiones</strong> (vender el avión) es mayor, del orden de <span class="num">8.300 millones</span> en 2026 hacia <span class="num">11.600 millones en 2031</span>.</p>
+      <p>Son mercados pequeños para deep tech. Seneca levantó 60 millones de dólares, es decir, aproximadamente el 4 % del mercado anual de servicios, antes de facturar nada. Bridger Aerospace, el único puro-play cotizado del sector, capitaliza unos 100 millones de dólares con ocho Super Scoopers. Eso te dice que el sector no paga múltiplos de software: paga por disponibilidad contratada.</p>
+
+      <h4>España y Europa en cifras</h4>
+      <ul>
+        <li>España moviliza en el pico de campaña unas <strong>250 aeronaves</strong> (alrededor de 200 helicópteros y el resto aviones) desde hasta <strong>180 bases</strong>.</li>
+        <li>La flota estatal de anfibios son <strong>10 aparatos FOCA</strong> (CL-215T y CL-415) propiedad del MITECO y operados por el 43 Grupo del Ejército del Aire. En julio de 2026 solo <strong>7 estaban operativos</strong>, con células de más de 40 años.</li>
+        <li>Los contratos son autonómicos y plurianuales. Ejemplo real: la licitación de la Comunitat Valenciana para 7 aviones de carga en tierra, 2 anfibios y 1 de coordinación se valoró en <span class="num">58,6 millones de euros</span>.</li>
+        <li>rescEU financió <span class="num">600 millones de euros</span> para 12 anfibios nuevos repartidos entre Croacia, Francia, Grecia, Italia, Portugal y España, con primeras entregas a finales de 2027. En verano de 2026 la UE preposicionó 22 aviones, 5 helicópteros y 777 bomberos.</li>
+      </ul>
+
+      <h3>2. Tu idea ya tiene tres dueños distintos</h3>
+      <p>La cadena que describes (detección satelital constante, despacho automático, flota que va a por agua y coordina el ataque) está siendo construida ahora mismo, pero troceada en tres capas, y cada capa tiene ya un líder con dinero:</p>
+      <ul>
+        <li><strong>Detección.</strong> FireSat, de Earth Fire Alliance con Muon Space y Google Research, lanzó sus tres primeros satélites operativos el 7 de julio de 2026. Detecta focos de 5 por 5 metros y va hacia revisita horaria en 2029 y 20 minutos hacia 2030 con más de 50 satélites. OroraTech tiene 8 CubeSats de una constelación de 100 y ya firmó con el sistema de bomberos griego. La detección satelital constante deja de ser un diferencial: será una API.</li>
+        <li><strong>Orquestación.</strong> Anduril es finalista del XPRIZE Wildfire aplicando Lattice, torres Sentry y drones Ghost-X. Rain hace lo mismo en versión especializada, sobre autonomía Sikorsky MATRIX y Black Hawk opcionalmente tripulados, y ya ha hecho descargas autónomas sobre fuego real en California.</li>
+        <li><strong>Supresión.</strong> Seneca (60 millones, despliegue en la campaña 2026), Dryad con Silvanet más Silvaguard (top 3 en la final del XPRIZE en Alaska en junio de 2026), FireSwarm con drones ultrapesados de ACC Innovation.</li>
+      </ul>
+
+      <h3>3. El punto débil de la idea, dicho sin rodeos</h3>
+      <p>La parte de "van a por agua al mar o al pantano y la llevan al incendio" es la que no cuadra, y conviene verlo con números antes de invertir un año.</p>
+      <p>Un Air Tractor AT-802 descarga <span class="num">3.100 litros</span> por pasada. Los drones de supresión que están llegando al mercado mueven entre <span class="num">45 y 340 kg</span>. Para igualar una sola pasada de un AT-802 necesitas del orden de <strong>diez a setenta drones</strong> descargando a la vez, y luego repetir el ciclo. Con densidad energética de baterías actual, el trayecto de ida y vuelta al mar (a menudo de 20 a 60 km) se come la autonomía completa. Por eso los que han hecho los números se bifurcan en dos caminos:</p>
+      <ul>
+        <li><strong>Hacerse avión.</strong> Marcos Aerospace con el Quencher (4.500 litros, anfibio, autónomo) y Singular Aircraft con el FLYOX I (4.000 kg de MTOW) aceptan que si quieres mover agua desde el mar acabas construyendo una aeronave certificable de varias toneladas, con años de certificación por delante y competencia frontal con De Havilland y Hynaero.</li>
+        <li><strong>Cambiar la misión.</strong> Seneca, Dryad, FireSwarm, Windracers y los quince semifinalistas del XPRIZE han redefinido el objetivo: no apagar el gran incendio, sino <strong>matarlo en los primeros diez minutos</strong>, cuando aún cabe en unos pocos metros cuadrados y bastan decenas de litros bien puestos. Ese es el problema que sí resuelve un enjambre eléctrico, y es donde está entrando todo el capital.</li>
+      </ul>
+      <div class="callout">
+        <p>Añade dos objeciones que te van a hacer en la primera reunión con cualquier agencia forestal: <strong>el agua salada</strong> corroe la aeronave y saliniza el suelo forestal (por eso los anfibios prefieren embalses cuando pueden elegir), y <strong>el espacio aéreo</strong> sobre un incendio activo está saturado de medios tripulados volando bajo. Britton Coulson, de uno de los mayores operadores privados del mundo, lo dice de forma explícita: su objeción no es tecnológica, es que no piensa poner sus tripulaciones a compartir el hueco con drones autónomos.</p>
+      </div>
+
+      <h3>4. Dónde sí hay hueco</h3>
+      <h4>Hueco A · El Mediterráneo no tiene producto</h4>
+      <p>Prácticamente todo el capital de este sector es norteamericano y resuelve el problema norteamericano (grandes superficies despobladas, utilities con responsabilidad civil billonaria que pagan por prevenir igniciones). Europa tiene el problema (España, Portugal, Grecia, Italia y el sur de Francia) y no tiene ningún campeón de supresión autónoma. De los 15 semifinalistas del XPRIZE, solo uno es español: <strong>AeroWatch</strong>, un consorcio de Barcelona liderado por BCN Drone Center y CTTC, en el que por cierto está <strong>Near Space Labs</strong>. Ahí tienes tanto un competidor como una puerta abierta.</p>
+
+      <h4>Hueco B · La noche</h4>
+      <p>Los medios tripulados no vuelan cuando no hay visibilidad, y la noche es justo cuando baja la temperatura, sube la humedad y cae el viento, es decir, cuando el fuego es más vencible. Nadie actúa en esa ventana a escala. FireSwarm ha construido toda su tesis comercial sobre eso. En España, con 180 bases que echan el cierre al anochecer, el argumento es todavía más fuerte.</p>
+
+      <h4>Hueco C · La coordinación, que es literalmente tu trabajo actual</h4>
+      <p>El caos real de un incendio grande en España no es la falta de medios: es que esos medios pertenecen a la comunidad autónoma, al MITECO, al Ejército del Aire, a la UME, a cuatro operadores privados distintos y, si escala, a rescEU con aeronaves suecas, chipriotas o italianas llegando en 6 a 12 horas con procedimientos y frecuencias distintas. Nadie orquesta eso de forma unificada.</p>
+      <p>Esa es exactamente la arquitectura de tres capas que ya estás construyendo en Karajan (pasarela de interoperabilidad, motor de orquestación de misión, capa de decisión supervisada por humano), aplicada a un dominio civil con presupuesto público europeo y sin las fricciones de exportación del defensa. Que Anduril esté metiendo Lattice en el XPRIZE Wildfire no es una coincidencia: es la validación de que la transferencia funciona, y a la vez el aviso de quién te va a esperar allí.</p>
+
+      <h3>5. Cómo lo verificaría antes de escribir una línea de código</h3>
+      <ul>
+        <li>Hablar con <strong>Avincis</strong> (Alicante, 39 aeronaves de extinción, mayor operador de España y Portugal) y con <strong>Pegasus Aero Group</strong> (FAASA, Córdoba). Ellos saben qué se factura, qué exige un pliego y qué no compraría jamás un jefe de operaciones.</li>
+        <li>Leer un pliego real completo, por ejemplo el de la Comunitat Valenciana o el de Galicia, para ver cómo se compra de verdad: disponibilidad por días, tripulaciones, bases, penalizaciones. Un enjambre autónomo no encaja en ninguna categoría existente y eso es un problema de negocio antes que técnico.</li>
+        <li>Mirar quién paga en el modelo estadounidense: <strong>PG&amp;E</strong> patrocina el XPRIZE porque las utilities californianas van a gastar más de 6.000 millones en mitigación de incendios entre 2026 y 2028 por pura exposición a responsabilidad civil. El equivalente español (distribuidoras eléctricas, ferroviarias, plantas solares) es un cliente privado mucho más rápido que una administración.</li>
+        <li>Seguir el resultado del <strong>XPRIZE Wildfire</strong>, que se anuncia en septiembre de 2026. Los tres que llegaron a la final de Alaska (Dryad entre ellos) van a marcar el estándar técnico y a llevarse la atención de los fondos durante el año siguiente.</li>
+      </ul>
+
+    </div>
+  </section>
+
+  <footer>
+    Fuentes principales: XPRIZE Wildfire (libros de equipos semifinalistas y finalistas 2025 y 2026), Vertical Magazine, Aerospace Testing International, AerialFire, FlightGlobal, Global Market Insights, Mordor Intelligence, Persistence Market Research, Comisión Europea (rescEU), TED (licitaciones públicas españolas), Muon Space, Earth Fire Alliance, De Havilland Canada, Hynaero, y notas de prensa corporativas.<br><br>
+    Las capitalizaciones y valoraciones se mueven: verifica antes de citarlas. Los datos marcados con ~ son estimaciones. Documento generado el 20 de julio de 2026.
+  </footer>
+</div>
+
+<dialog class="card-dialog" id="card-dialog" aria-labelledby="dialog-title">
+  <div class="dialog-shell" id="dialog-shell"></div>
+</dialog>
+
+<script>
+const YEAR = 2026;
+const M = {
+  concepto:{c:"#4C63E6",l:"Concepto"},
+  prototipo:{c:"#8A54E0",l:"Prototipo"},
+  ensayos:{c:"#E8395C",l:"Ensayos"},
+  produccion:{c:"#F2A43A",l:"Producción"},
+  servicio:{c:"#FFF0D2",l:"En servicio"}
+};
+const SEG = {
+  plat:{t:"Plataformas tripuladas",d:"Los fabricantes que construyen el avión o el helicóptero. Aquí está el dinero grande y los ciclos de 10 años."},
+  op:{t:"Operadores de servicio",d:"Quien vuela realmente. En España y Europa este es el cliente y, a la vez, el guardián de la puerta."},
+  auto:{t:"Supresión autónoma",d:"El campo de batalla actual. Casi todo pre-semilla o Serie A, con la excepción de Anduril y Seneca."},
+  det:{t:"Capa de detección",d:"Satélites, sensores y torres. Es el disparador de todo el sistema y ya está resuelto por otros."}
+};
+
+const D = [
+/* ── PLATAFORMAS TRIPULADAS ───────────────────────────── */
+{s:"plat",n:"De Havilland Canada",p:"DHC-515 Firefighter",c:"Canadá · vende a HR, GR, FR, IT, PT, ES, CA",k:"m",f:1928,sz:"Privada (Longview Aviation Capital)",m:"produccion",pl:"6.140 L",
+ no:"Sucesor del CL-215 y CL-415. Primer avión en montaje en Calgary, entregas desde 2028 empezando por Grecia. 20 pedidos firmes europeos más 5 de Alberta por 400 M CAD. La flota CL global en servicio ronda las 150 unidades.",u:"https://dehavilland.com"},
+{s:"plat",n:"Bombardier · Canadair",p:"CL-215 / CL-215T / CL-415",c:"Canadá · operado en todo el Mediterráneo",k:"m",f:1966,sz:"Programa vendido a Viking Air en 2016",m:"servicio",pl:"5.400 a 6.140 L",
+ no:"El estándar de facto del Mediterráneo y fuera de producción desde 2015. Es la flota que España opera con más de 40 años de vida y el motivo por el que existe todo el mercado de reemplazo actual.",u:"https://en.wikipedia.org/wiki/Canadair_CL-415"},
+{s:"plat",n:"Hynaero",p:"FREGATE-F100",c:"Francia (Burdeos, ensamblaje en Istres)",k:"m",f:2023,sz:"117 M€ levantados (abril 2026) + 7 M€ France 2030",m:"concepto",pl:"10 t de agua",
+ no:"El Canadair europeo. Socios: Airbus Defence and Space, ONERA, Capgemini, Akkodis. Fundada por David Pincet, ex jefe de la flota aérea del Ministerio del Interior francés. Revisión de diseño preliminar en otoño de 2028, primer vuelo en 2031 y entregas a finales de 2032. Diseñado para llevar IA de coordinación de operaciones.",u:"https://hynaero.com"},
+{s:"plat",n:"Air Tractor",p:"AT-802F / Fire Boss",c:"EE.UU. · operado en ES, PT, FR, IT, GR, TR, CL, AU",k:"m",f:1972,sz:"Privada (ESOP), ~500 empleados",m:"servicio",pl:"3.100 L",
+ no:"El caballo de batalla real de la campaña española, en versión terrestre (ACT) y anfibia (ASA). Turquía compró 20 unidades en 2023 y ya ha recibido 12. Si vas a comparar economía por litro entregado, este es el número contra el que compites.",u:"https://airtractor.com"},
+{s:"plat",n:"Thrush Aircraft",p:"Thrush 710P",c:"EE.UU. · flota principal de PLYSA en España",k:"m",f:2003,sz:"Privada, pequeña",m:"servicio",pl:"~3.000 L",
+ no:"Alternativa directa al AT-802 en el segmento de carga en tierra. Linaje que se remonta a los Snow y Ayres de los años 50.",u:"https://thrushaircraft.com"},
+{s:"plat",n:"AVIC",p:"AG600M Kunlong",c:"China",k:"m",f:1951,sz:"Estatal, corporación de gran escala",m:"produccion",pl:"12 t de agua",
+ no:"El mayor anfibio en producción del mundo. Certificado de tipo de la CAAC en abril de 2025 y desplegado en formación de dos aparatos en Guangdong en abril de 2026, con recarga en 6 minutos. China está construyendo capacidad soberana completa.",u:"https://en.wikipedia.org/wiki/AVIC_AG600"},
+{s:"plat",n:"Beriev",p:"Be-200 Altair",c:"Rusia",k:"m",f:1934,sz:"Estatal (UAC)",m:"servicio",pl:"12 t",
+ no:"Anfibio a reacción de gran capacidad. Producción muy limitada y prácticamente fuera del mercado europeo por sanciones, pero sigue siendo la referencia de capacidad por pasada.",u:"https://en.wikipedia.org/wiki/Beriev_Be-200"},
+{s:"plat",n:"Airbus Defence and Space",p:"Kit contraincendios ro-ro para A400M",c:"Europa (ES, FR, DE, UK, TR)",k:"m",f:1970,sz:"Cotizada (Euronext: AIR), gran capitalización",m:"ensayos",pl:"20 t",
+ no:"Depósito roll-on roll-off que convierte cualquier A400M militar en avión de extinción, recargable en menos de 10 minutos con bombas de tierra. Probado en Nîmes-Garons. No recoge agua en vuelo. Triplica la capacidad de un CL-415.",u:"https://www.airbus.com"},
+{s:"plat",n:"Coulson Aviation",p:"737 FireLiner · C-130H · B767 VLAT",c:"Canadá y EE.UU. (Port Alberni, BC)",k:"m",f:1986,sz:"Privada, uno de los mayores operadores del mundo",m:"servicio",pl:"15.000 a 19.000 L",
+ no:"Primero en convertir un Boeing 737 en cisterna (sistema propio RADS-XXL) manteniendo capacidad de transportar 72 bomberos. Anunció en febrero de 2026 un VLAT sobre Boeing 767 tras la retirada de las flotas MD-11 y DC-10. Su presidente es el crítico más articulado de la extinción autónoma.",u:"https://coulsonaviation.com"},
+{s:"plat",n:"10 Tanker Air Carrier",p:"DC-10 / MD-10 Air Tanker",c:"EE.UU. · despliegues en Chile y Australia",k:"m",f:2004,sz:"Privada, 4 aeronaves",m:"servicio",pl:"35.600 L",
+ no:"El VLAT clásico. Afectado por la retirada de los DC-10 y MD-11 tras el accidente del MD-11 de UPS a finales de 2025, lo que ha abierto un hueco de capacidad muy grande en el segmento superior.",u:"https://10tanker.com"},
+{s:"plat",n:"Erickson",p:"S-64 Air Crane · MD-87 (Erickson Aero Tanker)",c:"EE.UU. (Oregón)",k:"m",f:1971,sz:"Privada",m:"servicio",pl:"S-64: 10.000 L · MD-87: 11.350 L",
+ no:"Siete MD-87 convertidos capaces de operar desde pistas de 1.500 m a 450 nudos de crucero, más el helicóptero de carga pesada icónico del sector.",u:"https://ericksoninc.com"},
+{s:"plat",n:"Neptune Aviation Services",p:"BAe 146 · transición a Airbus A319",c:"EE.UU. (Missoula, Montana)",k:"m",f:1993,sz:"Privada, 9 aviones",m:"servicio",pl:"11.350 L → 17.000 L",
+ no:"Las horas de vuelo por aeronave y temporada han pasado de unas 150 a finales de los 90 a cerca de 300 hoy. Ese dato es la mejor prueba cuantitativa de que la temporada se alarga.",u:"https://neptuneaviation.com"},
+{s:"plat",n:"Conair Group / Aero-Flite",p:"Q400AT · RJ85 · Dash 8",c:"Canadá y EE.UU.",k:"m",f:1969,sz:"Privada",m:"servicio",pl:"~10.000 L",
+ no:"Uno de los mayores convertidores e integradores de sistemas de descarga del mundo, con presencia también en contratos europeos.",u:"https://conair.ca"},
+{s:"plat",n:"Bridger Aerospace",p:"CL-215T Super Scooper",c:"EE.UU. (Bozeman, Montana)",k:"m",f:2014,sz:"Cotizada NASDAQ: BAER · cap. ~100 M$",m:"servicio",pl:"5.400 L",
+ no:"El único puro-play cotizado del sector, y por eso el mejor comparable público que existe. Compró dos Super Scoopers más por 50 M$ en noviembre de 2025 hasta llegar a ocho. Capitalizar 100 M$ con ocho anfibios marca el techo de valoración del negocio de operación pura.",u:"https://bridgeraerospace.com"},
+{s:"plat",n:"Dauntless Air",p:"Flota Fire Boss (AT-802F anfibio)",c:"EE.UU. (Minnesota)",k:"m",f:1993,sz:"Privada, mayor flota Fire Boss",m:"servicio",pl:"3.100 L",
+ no:"Especialista en ataque inicial rápido con anfibios ligeros. Modelo de negocio muy cercano a lo que hacen Pegasus y Martínez Ridao en España.",u:"https://dauntlessair.com"},
+{s:"plat",n:"IAI + Fire Free Forests",p:"767FF",c:"Israel",k:"m",f:2026,sz:"IAI estatal · acuerdo firmado inicio de 2026",m:"concepto",pl:"Conversión de Boeing 767BDSF",
+ no:"Entrada de un integrador de defensa en el segmento de cisterna muy grande, justo cuando se retiran los DC-10 y MD-11. Señal de que el hueco de capacidad superior se va a llenar rápido.",u:"https://www.iai.co.il"},
+{s:"plat",n:"Arcus Fire / Pacific Aerospace",p:"Firecatcher F-45",c:"Reino Unido y Nueva Zelanda",k:"m",f:2021,sz:"Startup pequeña · ~4,2 M$ por unidad",m:"concepto",pl:"Monoturbohélice utilitario",
+ no:"Intento británico y neozelandés de un avión utilitario nuevo con misión de extinción. Programa muy retrasado respecto a su plan original de primer vuelo en 2023.",u:"https://en.wikipedia.org/wiki/Firecatcher_F-45"},
+{s:"plat",n:"Sikorsky (Lockheed Martin)",p:"Firehawk S-70 · UH-60 + autonomía MATRIX",c:"EE.UU. · CAL FIRE y operadores globales",k:"b",f:1923,sz:"Cotizada NYSE: LMT · gran capitalización",m:"servicio",pl:"3.785 L",
+ no:"El Firehawk es el helicóptero de ataque de referencia en California. Su suite MATRIX permite vuelo opcionalmente tripulado y es la base sobre la que Rain construye su autonomía de misión. Lockheed patrocina además el premio de 1 M$ de detección del XPRIZE Wildfire.",u:"https://lockheedmartin.com/sikorsky"},
+{s:"plat",n:"Kaman Air Vehicles",p:"K-MAX · K-MAX TITAN (no tripulado)",c:"EE.UU. (Connecticut)",k:"b",f:1945,sz:"Privada desde 2024 (Arcline) · ~7 M$ por TITAN",m:"produccion",pl:"2.722 kg de carga externa",
+ no:"El único helicóptero de carga pesada no tripulado comercial del mundo. Primer vuelo del TITAN en 2021, con más de mil misiones no tripuladas acumuladas en su versión militar. Operadores de K-MAX tienen el 40 % de los contratos de uso exclusivo Tipo 1 del USFS.",u:"https://kaman.com"},
+{s:"plat",n:"Airbus Helicopters",p:"H215 / H225 Firefighter",c:"Francia, Alemania, España · 8 unidades a Grecia",k:"m",f:1992,sz:"Filial de Airbus",m:"servicio",pl:"~4.000 L",
+ no:"Segmento medio-pesado europeo. Grecia compró ocho H215 en 2025, señal de que el gasto público mediterráneo se está acelerando también en ala rotatoria.",u:"https://www.airbus.com/helicopters"},
+{s:"plat",n:"Columbia Helicopters",p:"Chinook CH-47 helitanker",c:"EE.UU. · 4 unidades a Turquía en 2025",k:"m",f:1957,sz:"Privada",m:"servicio",pl:"10.600 L",
+ no:"Carga pesada bimotor en configuración de helitanque. Coulson opera una flota equivalente. Es la referencia de capacidad en ala rotatoria.",u:"https://colheli.com"},
+{s:"plat",n:"PZL Mielec (Lockheed Martin)",p:"M18 Dromader",c:"Polonia · exportado a decenas de países",k:"m",f:1976,sz:"Filial de Lockheed Martin",m:"servicio",pl:"2.500 L",
+ no:"Veterano polivalente agrícola y de extinción, muy presente en Europa del Este y en países con presupuesto ajustado.",u:"https://en.wikipedia.org/wiki/PZL-Mielec_M18_Dromader"},
+
+/* ── OPERADORES ──────────────────────────────────────── */
+{s:"op",n:"Avincis",p:"Ex Helisureste, Inaer y Babcock MCS",c:"España (Alicante) y 8 países más",k:"m",f:1963,sz:"Privada (fondo Ancala Partners) · 39 aeronaves de extinción, 300+ profesionales",m:"servicio",pl:"Flota mixta",
+ no:"El mayor operador de extinción de España y Portugal, y el mayor operador de CL-415 del mundo durante más de 20 años. En diciembre de 2025 firmó con De Havilland Canada para dar mantenimiento a la flota CL global, incluidas sus propias modificaciones certificadas de ADS-B y FMS. Interlocutor obligatorio.",u:"https://avincisgroup.com"},
+{s:"op",n:"Pegasus Aero Group",p:"Holding que integra FAASA Aviación",c:"España (Córdoba), Chile y Portugal",k:"m",f:1966,sz:"Holding privado andaluz",m:"servicio",pl:"Flota mixta AT-802 y helicópteros",
+ no:"Fundado como Fumigación Aérea Andaluza por el aviador Sebastián Almagro. Junto a Martínez Ridao es el mayor operador de AT-802 de España. Historia de 60 años y relaciones profundas con las administraciones autonómicas.",u:"https://pegasusaerogroup.com"},
+{s:"op",n:"Martínez Ridao Aviación",p:"Anfibios y aviones de carga en tierra",c:"España (Almería)",k:"m",f:1974,sz:"Privada",m:"servicio",pl:"3.000 L, descarga cada 8 min",
+ no:"Especialista en ala fija. Sus anfibios recogen 3.000 litros en 12 segundos deslizándose sobre embalses o mar. Los terrestres tardan unos 2 minutos y medio en recargar en pista. Ese diferencial de ciclo es la métrica clave del sector.",u:"https://martinezridao.com"},
+{s:"op",n:"PLYSA",p:"Flota Thrush 710P",c:"España",k:"m",f:1970,sz:"Privada",m:"servicio",pl:"~3.000 L",
+ no:"Uno de los operadores históricos de ala fija en España, con el Thrush como columna vertebral en lugar del AT-802.",u:"https://plysa.es"},
+{s:"op",n:"Eliance",p:"Helicopter Global Services",c:"España",k:"m",f:2010,sz:"Privada",m:"servicio",pl:"Helicópteros medios y ligeros",
+ no:"Proveedor recurrente en licitaciones autonómicas junto a Avincis, Faasa, Martínez Ridao, Sky Helicópteros, Coyotair y Airworks.",u:"https://eliance.es"},
+{s:"op",n:"43 Grupo · Ejército del Aire y del Espacio",p:"10 anfibios FOCA (CL-215T y CL-415)",c:"España (Torrejón de Ardoz)",k:"m",f:1971,sz:"Unidad militar · aeronaves propiedad del MITECO",m:"servicio",pl:"5.400 a 6.140 L",
+ no:"El cuello de botella público. En julio de 2026 solo 7 de los 10 anfibios estaban operativos, y uno a menos de 10 horas de entrar en mantenimiento. Aeronaves de más de 40 años, propiedad del MITECO pero mantenidas por Defensa. España sigue con 10 brigadas helitransportadas, las mismas que en 2007.",u:"https://ejercitodelaire.defensa.gob.es"},
+{s:"op",n:"McDermott Aviation",p:"Flota de 15 Bell 214",c:"Australia · desplegada en Grecia",k:"m",f:1993,sz:"Privada",m:"servicio",pl:"~2.600 L",
+ no:"Séptimo año consecutivo operando la campaña griega desde 11 bases. Ejemplo del mercado de despliegue estacional cruzado entre hemisferios.",u:"https://mcdermottaviation.com.au"},
+{s:"op",n:"Stinson Aerial · Phoenix Heli-Flight",c:"Canadá (Alberta y Columbia Británica)",p:"Helicópteros y RPAS mixtos",k:"b",f:1996,sz:"Pymes",m:"servicio",pl:"Variable",
+ no:"Operadores que ya combinan helicóptero y dron. Su lectura es útil: ven el dron como complemento para los trabajos pequeños, no como sustituto, y avisan de que la obsolescencia tecnológica es un riesgo de balance que un helicóptero de los años 70 no tiene.",u:"https://phoenixheliflight.com"},
+
+/* ── SUPRESIÓN AUTÓNOMA ──────────────────────────────── */
+{s:"auto",n:"Seneca",p:"Sistema autónomo de supresión",c:"EE.UU. (Sausalito, California)",k:"u",f:2024,sz:"60 M$ (Caffeinated Capital, Convective Capital, First Round, Transition DCVC)",m:"ensayos",pl:"45 kg a más de 100 PSI",
+ no:"La mayor ronda temprana de la historia del sector. Fundada por Stu Landesberg, que llevó Grove Collaborative a bolsa. Equipos de 4 a 6 cuadricópteros eléctricos en maletas transportables en pickup o azotea. Crea barreras de espuma de 390 m de largo y responde a coordenadas aproximadas en menos de 10 minutos. Primeros despliegues en la campaña 2026, con utilities como cliente ancla.",u:"https://seneca.com"},
+{s:"auto",n:"Rain",p:"Wildfire Mission Autonomy System",c:"EE.UU. (Alameda, California)",k:"b",f:2019,sz:"Semilla de 9,7 M$ más rondas posteriores · socios Sikorsky y PG&E",m:"ensayos",pl:"Según plataforma (Black Hawk: 3.785 L)",
+ no:"No fabrica hardware: adapta aeronaves militares y civiles ya existentes. En mayo de 2025 demostró en Hesperia (California) descargas autónomas sobre fuego real con un Black Hawk opcionalmente tripulado combinando MATRIX de Sikorsky con su capa de planificación de supresión. Es el modelo de negocio más cercano a una capa de orquestación pura.",u:"https://www.rain.aero"},
+{s:"auto",n:"Anduril",p:"Lattice OS + torres Sentry + Ghost-X",c:"EE.UU. (Costa Mesa, California)",k:"u",f:2017,sz:"Serie G · valoración ~30 mil M$ · más de 6.000 empleados",m:"prototipo",pl:"Supresión temprana desde Ghost-X",
+ no:"Finalista del XPRIZE Wildfire. Aplica al incendio forestal exactamente la misma arquitectura de sensor fusion y automatización de tareas que vende en defensa, con arquitectura abierta y sin bloqueo de datos. Es el competidor más peligroso para cualquier propuesta de orquestación, y la prueba de que la transferencia defensa a emergencias funciona.",u:"https://www.anduril.com"},
+{s:"auto",n:"Dryad Networks",p:"Silvanet (sensores) + Silvaguard (drones)",c:"Alemania (Eberswalde y Berlín)",k:"u",f:2020,sz:"Serie B",m:"ensayos",pl:"Carga líquida sobre foco incipiente",
+ no:"Uno de los tres finalistas que llegaron a la prueba final del XPRIZE en Alaska en junio de 2026, donde su red detectó un fuego a los pocos minutos de la ignición y disparó un dron autónomo que lo localizó y atacó sin intervención humana. Sensores de gas solares que detectan en fase de rescoldo, ya en despliegue comercial pleno. El sistema completo más validado que existe hoy.",u:"https://www.dryad.net"},
+{s:"auto",n:"FireSwarm Solutions",p:"Algoritmo de enjambre + fire mission kit",c:"Canadá (Squamish, Columbia Británica)",k:"u",f:2023,sz:"Pre-semilla · NATO DIANA 2026 · top 50 cleantech de Canadá",m:"ensayos",pl:"340 L por dron (Bambi Bucket)",
+ no:"Finalista del XPRIZE. Agnóstico respecto al dron: compra los ultrapesados a ACC Innovation en Suecia, instala su kit de misión y vende el enjambre. Tesis comercial explícita: la ventana nocturna y de baja visibilidad, cuando ningún medio tripulado vuela. Consorcio con Solaris Suborbital (HALE), Trident Sensing (IR), Exo Drone y SenseNet.",u:"https://www.fireswarmsolutions.com"},
+{s:"auto",n:"ACC Innovation",p:"Thunder Wasp",c:"Suecia · entregas a Norteamérica",k:"u",f:2014,sz:"Privada",m:"produccion",pl:"340 L · 2 h de autonomía · 220 CV",
+ no:"Fabricante de los mayores cuadricópteros de carga pesada del mundo. Es el proveedor de hardware que hace viable la propuesta de FireSwarm. Si construyes un enjambre en Europa, este es un socio, no un competidor.",u:"https://accinnovation.se"},
+{s:"auto",n:"Data Blanket",p:"Air Force-in-a-Box",c:"EE.UU. (Bellevue, Washington)",k:"u",f:2022,sz:"Más de 4 M$ (Breakthrough Energy Ventures de Bill Gates, Innovation Endeavors)",m:"ensayos",pl:"Enjambre de detección y supresión",
+ no:"Finalista del XPRIZE. Equipo con pedigrí notable: CEO Omer Bar-Yohay (fundador de Eviation) y arquitecto jefe Gur Kimchi (creador de Amazon Prime Air). Tiene aprobación FAA para BVLOS y operación de enjambre one-to-many con un solo operador Part 107, que es el verdadero desbloqueo regulatorio.",u:"https://www.datablanket.com"},
+{s:"auto",n:"Marcos Aerospace",p:"Quencher",c:"Grecia (Atenas)",k:"u",f:2025,sz:"Startup · buscando socios estratégicos e inversión",m:"concepto",pl:"4.500 L",
+ no:"El competidor conceptual más directo a tu idea original: anfibio autónomo que recoge del mar o de lagos y opera de día y de noche, con un operador coordinando hasta cinco aeronaves. Motor PW127, 440 km/h máximo. Solicitudes de patente presentadas. Sigue en fase de diseño preliminar y sus renders son generados por IA, así que trátalo como tesis, no como producto.",u:"https://marcosaerospace.com"},
+{s:"auto",n:"AeroWatch",p:"Sistema de sistemas para respuesta autónoma",c:"España (Barcelona) · consorcio internacional",k:"u",f:2023,sz:"Consorcio · semifinalista XPRIZE",m:"prototipo",pl:"Según plataforma del consorcio",
+ no:"El único equipo español del XPRIZE Wildfire. Promovido por BCN Drone Center y CTTC, con Avy, CATUAV, Flare Bright, Flying Objects, Gotonomi, Near Space Labs, Fundación Pau Costa, Robotto, Skycharge, Swift Aeronautics, Viasat, Videosoft y Volant. Cubre las cuatro fases: predicción, detección, supresión autónoma y apoyo de datos en tiempo real. Su innovación declarada es justo la interfaz unificada de coordinación de recursos robóticos.",u:"https://aerowatch.tech"},
+{s:"auto",n:"AURA / Windracers Environmental",p:"ULTRA + enjambre autocoordinado",c:"Reino Unido (Southampton y Bristol)",k:"u",f:2022,sz:"Pre-semilla · consorcio con U. Bristol, U. Sheffield y Lancashire FRS",m:"ensayos",pl:"100 kg de retardante · MTOW 450 kg",
+ no:"Semifinalista del XPRIZE y la referencia británica. Ensayo de una semana en Preddanack (Cornualles) con un ULTRA y tres drones pequeños detectando y aproximándose a fuegos controlados. La misma aeronave ha volado carga en Ucrania y datos científicos en la Antártida. Afirman que un enjambre puede vigilar una superficie del tamaño de Grecia.",u:"https://windracers.com"},
+{s:"auto",n:"Pyr-Stop",p:"Respuesta autónoma con Probotek",c:"Reino Unido (Bristol) · equipo mayoritariamente griego",k:"u",f:2023,sz:"Pre-semilla · semifinalista XPRIZE",m:"prototipo",pl:"Liberación dirigida de extintor",
+ no:"Enfocado explícitamente en coste competitivo y escalabilidad global, no en capacidad máxima. Prototipo a escala reducida verificado.",u:"https://www.pyr-stop.com"},
+{s:"auto",n:"FLARE-X / AIVE AI Systems",p:"Flotas de drones de bajo coste",c:"EE.UU. y Reino Unido",k:"u",f:2023,sz:"Pre-semilla · semifinalista XPRIZE",m:"ensayos",pl:"Descargas de precisión guiadas",
+ no:"Consorcio de UT Austin, Southampton, Edimburgo y el Texas A&M Forest Service, con spin-off comercial propia. Tres etapas: mapa dinámico de riesgo previo, detección y verificación, y supresión.",u:"https://jsg.utexas.edu/flare-x/"},
+{s:"auto",n:"Agni (TRID Systems + TH Wildau)",p:"Jets de detección + multicópteros de supresión",c:"Alemania (Dresde)",k:"u",f:2022,sz:"Pre-semilla · semifinalista XPRIZE",m:"prototipo",pl:"35 L por multicóptero",
+ no:"Arquitectura de dos clases: reactores a combustible para barrer superficie con RGB e infrarrojo, y copteros grandes para llevar agua. Coordinación multiagente sobre 1.000 km².",u:"https://trid-systems.com/agni/"},
+{s:"auto",n:"Crossfire (University of Maryland)",p:"UAV Scout + Firejumper",c:"EE.UU. (College Park, Maryland)",k:"u",f:2023,sz:"Pre-semilla · semifinalista XPRIZE",m:"ensayos",pl:"Explosión aérea de supresor",
+ no:"Uno de los pocos equipos con departamento de ingeniería de protección contra incendios detrás, de los tres que existen en EE.UU. Prueba end-to-end con fuego real en marzo de 2025. Han hablado ya con unos 40 clientes potenciales y dudan abiertamente de que haya suficiente demanda para hacerlo viable, lo cual es un dato honesto que conviene tener presente.",u:"https://crossfire.umd.edu"},
+{s:"auto",n:"Ember Flash Aerospace",p:"Vigilant System",c:"EE.UU. (Santa Cruz, California)",k:"u",f:2023,sz:"Ronda semilla · semifinalista XPRIZE",m:"prototipo",pl:"UAS Raptor de supresión",
+ no:"Cuatro componentes: sensores Detect, UAS Phoenix de monitorización, UAS Raptor de supresión y Core como sistema central de datos. Equipo con muchos jefes de bomberos retirados dentro.",u:"https://www.emberflash.com"},
+{s:"auto",n:"FlameJackets (Georgia Tech + Cobra AERO)",p:"Multirrotor híbrido gas-eléctrico",c:"EE.UU. (Atlanta)",k:"u",f:2023,sz:"Pre-semilla · semifinalista XPRIZE",m:"prototipo",pl:"23 kg de carga (50 lb totales)",
+ no:"Apuesta por propulsión híbrida para romper el techo de autonomía de las baterías, con un plan por fases hasta enjambres de 20 a 40 drones de supresión. Más de 40 estudiantes trabajando en ello.",u:"https://sites.gatech.edu/wildfire"},
+{s:"auto",n:"Wildfire Quest",p:"Torres IR + algoritmo C-REST",c:"EE.UU. (San José, California)",k:"u",f:2023,sz:"Pre-semilla · finalista XPRIZE",m:"prototipo",pl:"Espuma expansiva",
+ no:"Equipo de un instituto de secundaria (Valley Christian High School) que llegó a la final por delante de startups financiadas, con SensoRyAI y Kaizen Aerospace. Estaciones base solares con recarga automática de supresor. Vale la pena mirarlo aunque solo sea para calibrar cuál es la barrera técnica real.",u:"https://www.vcs.net/amse-xprize/wildfire"},
+{s:"auto",n:"RAINDROPS (NTNU + BYU)",p:"Sistema de sistemas observación y supresión",c:"Noruega y EE.UU.",k:"u",f:2023,sz:"Académico · semifinalista XPRIZE",m:"prototipo",pl:"UAS de supresión ligeros",
+ no:"Dirigido por Kostas Alexis (NTNU), referencia mundial en autonomía robótica en entornos degradados. Su criterio de diseño declarado es coste y escalabilidad, ajustado a presupuestos de agencias reales.",u:"https://www.ntnu.edu/arl"},
+{s:"auto",n:"Fire Foresight",p:"Detección IA + investigación con dron",c:"Australia (Hobart, Tasmania) · servicio en 11 países",k:"u",f:2023,sz:"Serie A · despliegue comercial pleno",m:"servicio",pl:"Detección, no supresión",
+ no:"Consorcio con Indicium Dynamics, Taz Drone Solutions, RoboticsCats y Little Place Labs. Red piloto en Tasmania que detectó más de 1.500 fuegos en cinco meses. Servicio de monitorización 24/7 con triaje humano para reducir falsos positivos. Es el que más se parece a un negocio de verdad hoy.",u:"https://fireforesight.com"},
+{s:"auto",n:"Singular Aircraft",p:"FLYOX I",c:"España (Barcelona y Lleida) · Malta · Londres",k:"u",f:2010,sz:"Pyme privada",m:"prototipo",pl:"MTOW 4.000 kg · ~1.500 kg de carga",
+ no:"El mayor UAV anfibio civil del mundo por MTOW. Primer vuelo en 2015 y segundo prototipo en 2020, con demostraciones en México y República Dominicana. Autonomía de 2 a 4,5 h. Quince años después sigue sin certificación: es el mejor recordatorio de que en este segmento el cuello de botella es regulatorio, no aerodinámico.",u:"https://singularaircraft.com"},
+{s:"auto",n:"Drone Hopper",p:"Wyvern",c:"España (Madrid)",k:"u",f:2015,sz:"Pyme · fundador Pablo Flores, ex Airbus",m:"prototipo",pl:"300 L de agua nebulizada",
+ no:"Diferenciador técnico real: nebuliza el agua aprovechando el flujo de las hélices, con control magnético del tamaño de gota. A menor gota, más superficie cubierta por litro. Un cortafuegos de hasta 600 m² por descarga. Enfocado a ataque indirecto y operación nocturna.",u:"https://dronehopper.com"},
+{s:"auto",n:"Rotor Technologies",p:"R550X Sprayhawk",c:"EE.UU. (Nashua, New Hampshire)",k:"u",f:2021,sz:"Privada · ~1,5 M$ por unidad",m:"produccion",pl:"Helicóptero R44 sin piloto",
+ no:"Convierte un Robinson R44 Raven II en helicóptero no tripulado. Ya en despliegue activo en agricultura, con la extinción como aplicación adyacente declarada. Camino más corto a capacidad real que construir una aeronave nueva.",u:"https://rotor.ai"},
+{s:"auto",n:"EHang",p:"EH216-F",c:"China (Guangzhou y Pekín)",k:"u",f:2014,sz:"Cotizada NASDAQ: EH",m:"produccion",pl:"150 L de espuma + 6 proyectiles ABC",
+ no:"Primera unidad de línea el 25 de diciembre de 2025 en Fangshan (Pekín). 21 minutos de autonomía, 130 km/h, alcance de 5 km, techo de 600 m. Rompe una ventana con un proyectil guiado por láser e inunda la habitación con espuma. Es incendio urbano en altura, no forestal, pero define el estándar industrial chino.",u:"https://www.ehang.com"},
+{s:"auto",n:"Drone Amplified",p:"IGNIS",c:"EE.UU. (Lincoln, Nebraska)",k:"u",f:2016,sz:"Pyme",m:"servicio",pl:"Dispensador de esferas de ignición",
+ no:"El caso de éxito real y poco glamuroso: ignición aérea para quemas prescritas y contrafuegos, adoptado de forma masiva por el USFS y agencias estatales. La lección es que el primer dron que las agencias compraron no apaga fuego, lo enciende donde conviene.",u:"https://droneamplified.com"},
+{s:"auto",n:"Parallel Flight Technologies",p:"Firefly",c:"EE.UU. (Watsonville, California)",k:"u",f:2018,sz:"SBIR y subvenciones USDA · rondas privadas",m:"prototipo",pl:"UAS híbrido, ~45 kg",
+ no:"Propulsión híbrida con una ventaja declarada de 10x sobre eléctricos puros, orientada a quemas prescritas de más de 400 hectáreas por vuelo y operación 24 horas junto a Drone Amplified.",u:"https://parallelflight.com"},
+{s:"auto",n:"FireDome",p:"Lanzador de cápsulas retardantes",c:"Israel",k:"u",f:2024,sz:"4,5 M$ pre-semilla (Gravity, Third Sphere, Israel Innovation Authority)",m:"ensayos",pl:"Cápsulas de retardante",
+ no:"Alternativa no aérea inspirada explícitamente en la Cúpula de Hierro: un lanzador terrestre con rotación de 360° crea un perímetro de retardante y luego apaga focos secundarios por pavesas. Fundadores de la Unidad 81 de inteligencia israelí. Autónomo en agua, energía y comunicaciones. Evita de golpe todo el problema de espacio aéreo.",u:"https://www.firedome.io"},
+{s:"auto",n:"Skyryse",p:"SkyOS",c:"EE.UU. (California)",k:"b",f:2016,sz:"~250 M$ levantados",m:"ensayos",pl:"Automatización de aeronaves existentes",
+ no:"Certificación FAA en curso para automatizar helicópteros ya en servicio. Compite con MATRIX de Sikorsky por ser la capa de vuelo sobre la que otros construyen la capa de misión.",u:"https://www.skyryse.com"},
+{s:"auto",n:"Ascent AeroSystems (Robinson)",p:"Spirit coaxial",c:"EE.UU.",k:"u",f:2014,sz:"Adquirida por Robinson Helicopter en 2024",m:"servicio",pl:"Modular",
+ no:"Drones coaxiales diseñados para viento racheado, lluvia intensa y calor extremo, es decir, exactamente las condiciones en las que los multirrotores convencionales se quedan en tierra.",u:"https://ascentaerosystems.com"},
+{s:"auto",n:"Volatus Aerospace · Draganfly",p:"Servicios RPAS para agencias de incendios",c:"Canadá",k:"u",f:2019,sz:"Cotizadas (micro-cap)",m:"servicio",pl:"Variable",
+ no:"Prestan servicio de dron a agencias de incendios y ven venir plataformas del tamaño de un helicóptero convertidas a pilotless, empujadas por la escasez estructural de pilotos.",u:"https://volatusaerospace.com"},
+{s:"auto",n:"JOUAV · Ziyan · XAG",p:"Helicópteros no tripulados y multirrotores",c:"China",k:"u",f:2010,sz:"Privadas",m:"servicio",pl:"Variable",
+ no:"Patrulla forestal, detección temprana y descarga ligera. Volumen y precio imbatibles, pero con restricciones crecientes de acceso a mercados occidentales por seguridad nacional.",u:"https://www.jouav.com"},
+
+/* ── DETECCIÓN ───────────────────────────────────────── */
+{s:"det",n:"Earth Fire Alliance + Muon Space + Google Research",p:"FireSat",c:"EE.UU. · cobertura global",k:"u",f:2024,sz:"Muon Space: más de 150 M$ levantados · respaldo de Google.org",m:"servicio",pl:"Detecta focos de 5 × 5 m",
+ no:"Los tres primeros satélites operativos se lanzaron el 7 de julio de 2026 en el Transporter-17. Carga útil infrarroja multiespectral de seis bandas que ve a través del humo y las nubes. Hoy dan al menos dos pasadas diarias sobre toda zona propensa a incendios, objetivo de revisita horaria en 2029 y más de 50 satélites con 20 minutos hacia 2030. Esto convierte la detección satelital en infraestructura, no en producto.",u:"https://www.earthfirealliance.org"},
+{s:"det",n:"OroraTech",p:"Wildfire Constellation",c:"Alemania (Múnich) · clientes globales",k:"u",f:2018,sz:"Financiación de riesgo europea, decenas de M€",m:"servicio",pl:"Resolución de 4 × 4 m",
+ no:"Ocho CubeSats 8U operativos de una constelación planeada de 100, con IA de detección a bordo del satélite. En julio de 2026 anunció que el sistema de bomberos heleno lo tiene operativo. Es el actor europeo de referencia en esta capa y un socio natural antes que un competidor.",u:"https://ororatech.com"},
+{s:"det",n:"NOAA",p:"Next Generation Fire System (NGFS)",c:"EE.UU.",k:"u",f:2022,sz:"Público",m:"ensayos",pl:"Algoritmos sobre GOES",
+ no:"Enfoque opuesto a FireSat: no lanza satélites nuevos, pone algoritmos mejores sobre la infraestructura geoestacionaria existente. Detección en minutos con resolución más gruesa. Paso a operativo pleno previsto para finales de 2026.",u:"https://www.nesdis.noaa.gov"},
+{s:"det",n:"Agencia Espacial Canadiense + NRCan",p:"WildFireSat",c:"Canadá",k:"u",f:2021,sz:"Público",m:"concepto",pl:"7 microsatélites · 200 m",
+ no:"Lanzamiento previsto en 2029. Diseñado para medir el comportamiento del fuego al final de la tarde, cuando la actividad es máxima, más que para detección temprana.",u:"https://www.asc-csa.gc.ca"},
+{s:"det",n:"Pano AI",p:"Torres de cámaras 360° con IA",c:"EE.UU., Canadá y Australia",k:"u",f:2020,sz:"Cerca de 90 M$ levantados",m:"servicio",pl:"Detección visual y triangulación",
+ no:"El referente comercial de detección terrestre. Vende sobre todo a utilities. Demuestra que la capa de detección ya es un negocio con ingresos recurrentes reales, mientras la de supresión todavía no lo es.",u:"https://www.pano.ai"},
+{s:"det",n:"Robotto",p:"Algoritmos de detección y seguimiento de fuego",c:"Dinamarca",k:"u",f:2019,sz:"Startup",m:"servicio",pl:"Software sobre dron",
+ no:"Miembro del consorcio AeroWatch. Especializado en visión embarcada para localizar y seguir el frente de fuego desde plataformas no tripuladas.",u:"https://robotto.ai"},
+{s:"det",n:"Copernicus EMS · EFFIS",p:"Sistema europeo de información de incendios",c:"Unión Europea",k:"u",f:1998,sz:"Público",m:"servicio",pl:"Cartografía y evaluación de daños",
+ no:"La base informacional sobre la que se activa el Mecanismo de Protección Civil de la UE. Cualquier producto europeo tiene que integrarse aquí, no competir con esto.",u:"https://effis.jrc.ec.europa.eu"}
+];
+
+/* Las rutas están codificadas para conservar exactamente los nombres de archivo de macOS. */
+const IMAGE_PATHS = {
+  1:["Images/1%20-%20%20Havilland%20Canada%20DHC-515%20Firefighter.jpg"],
+  2:["Images/2%20-%20Canadair_CL-215T_in_Spanish_service_4316.jpg"],
+  3:["Images/3%20-%20Hynaero.jpg"],
+  4:["Images/4%20-%20Air-Tractor-AT-802-1080x675.png","Images/4%20-%20Air_tractor_111209_1.jpg"],
+  5:["Images/5%20-%20Thrush%20Aircraft%20-710pairtoairpostcard1574.jpg"],
+  6:["Images/6%20-%20AVIC%20-%20AG600.jpg"],
+  7:["Images/7%20-%20Beriev%20-%20MChS_Beriev_Be-200_waterbomber.jpg"],
+  8:["Images/8%20-%20airbus%20defence%20and%20space%20firefighter%20%20-%20a400m-firefighter-image.jpg"],
+  9:["Images/9%20-%20Coulson%20aviation%202.jpg","Images/9%20-%20coulson-aviation%20tanker132.jpg"],
+  10:["Images/10%20-%2010_Tanker_Air_Carrier_1975_McDonnell_Douglas_DC-10-30_-_cn_47957_-_201_(30738227600).jpg"],
+  11:["Images/11%20-%20erikson%20aero%20tanker.jpg"],
+  12:["Images/12%20-%20neptune%20aviation.webp"],
+  13:["Images/13%20-%20Conair-Q400AT-2-Photo-Credit-Alexandre-Dubath-Edited.jpg"],
+  14:["Images/14%20-%20Bridger%20Aerospace.jpg"],
+  15:["Images/15%20-%20dauntless_air_-_training_in_mineral_wells_2020_source_dauntless_air.jpg"],
+  16:["Images/16%20-%20IAI%20+%20Fire%20Free%20Forests%20-%201.webp","Images/16%20-%20IAI%20+%20Fire%20Free%20Forests%202%20-%20Vertical-VA-1X-flight-test-Large.jpg"],
+  17:["Images/17%20-%20Arcus%20Fire%20Pacific%20Aerospace.jpg"],
+  18:["Images/18%20-%20Lockheed_Martin_Firehawk.jpg"],
+  19:["Images/19%20-%20Kaman%20Air%20Vehicles%20K-MAX%20%C2%B7%20K-MAX%20TITAN%20(no%20tripulado)%20.jpg"],
+  20:["Images/20%20-%20Airbus%20Helicopters%20H215%20:%20H225%20Firefighter%201.jpg","Images/20.2%20-%20Airbus%20Helicopters%20H215%20:%20H225%20Firefighter.jpg","Images/20.3%20-%20Airbus%20Helicopters%20H215%20:%20H225%20Firefighter.jpg"],
+  21:["Images/21%20-%20Columbia%20Helicopters%20Chinook%20CH-47%20helitanker.jpg"],
+  22:["Images/22%20-%20PZL%20Mielec%20(Lockheed%20Martin)%20M18%20Dromader.jpg"],
+  23:["Images/23%20-%20Avincis%20Ex%20Helisureste,%20Inaer%20y%20Babcock%20MCS%20-%20Babcock-Salvamento-Maritimo-Espana.jpg"],
+  24:["Images/24.1%20-%20PEGASUS-AERO-GROUP.jpg","Images/24.2%20-%20pegasus.jpg"],
+  30:["Images/30%20-%20Stinson%20Aerial%20%C2%B7%20Phoenix%20Heli-Flight%20Helico%CC%81pteros%20y%20RPAS%20mixtos.jpg"],
+  31:["Images/31%20-%20SENECA%20-%20maxresdefault.jpg"],
+  32:["Images/32%20-%20RAIN.jpg"],
+  33:["Images/33%20-%20Anduril%20.avif"],
+  34:["Images/34%20-%20Dryad%20Networks%20Silvanet%20(sensores)%20+%20Silvaguard%20(drones)%20(dron%20para%20detectar%20incendios%20con%20IA).webp","Images/34.2%20-%20(Fire%20detector)%20Dryad-Networks-Wildfire-Detection-Silvanet-Sensor.jpg"],
+  35:["Images/35%20-%20FireSwarm%20Solutions.jpg"],
+  36:["Images/36%20-%20ACC%20Innovation%20Thunder%20Wasp%20-%20The-Thunder-Wasp-GT-is-an-800-kg-MTOW-quadcopter-designed-and-tested-to-lift-payloads-up-to-400-kg-Images-courtesy-of-ACC-Innovation-except-where-stated-otherwise.png","Images/36.2%20-%20ACCInnovation_ThunderWaspGT.jpg"],
+  37:["Images/37%20-%20Data%20Blanket.avif","Images/37.2%20-%20Data%20blanket%202.avif"],
+  38:["Images/38%20-%20marcos%20aerospace.jpg"],
+  39:["Images/39%20-%20Aerowatch%20(deteccio%CC%81n%20de%20incendios).jpg"],
+  40:["Images/40%20-%20AURA%20:%20Windracers%20Environmental%20ULTRA%20+%20enjambre%20autocoordinado.jpg"],
+  41:["Images/41%20-%20PyrStop.png"],
+  42:["Images/42%20-%20flare-X%20-%20AIVE%20AI%20Systems.jpg"],
+  43:["Images/43.1%20-%20AGNI%20-%20uavs-in-firefighting%20(1).jpg","Images/43.2%20-%20AGNI.webp"],
+  44:["Images/44%20-%20Cross%20Fire%20Univ%20of%20Maryland.jpg","Images/44%20-%20Crossfire%20(University%20of%20Maryland).jpg"],
+  45:["Images/45%20-%20Ember%20Flash%20Aerospace%20-%20Detect%20fires.jpg"],
+  46:["Images/46%20-%20FlameJackets%20(Georgia%20Tech%20+%20Cobra%20AERO).webp"],
+  47:["Images/47%20-%20Wildfire%20Quest%20(secondary%20school%20project).jpg"],
+  48:["Images/48%20-%20raindrops-main-figure-post-selection-v1-b-hd.webp"],
+  49:["Images/49%20-%20Fire%20Foresight.png"],
+  50:["Images/50%20-%20Singular%20Aircraft%20FLYOX%20I.jpg"],
+  51:["Images/51%20-%20Drone%20Hopper%20Wyvern.jpg"],
+  52:["Images/52%20-%20Rotor%20Technologies%20R550X%20Sprayhawk%20DSC07393_EDIT2-scaled.jpg"],
+  53:["Images/53%20-%20EHang%20EH216-F.webp"],
+  54:["Images/54%20-%20Drone%20Amplified%20IGNIS.jpg"],
+  55:["Images/55%20-%20Parallel%20Flight%20Technologies%20Firefly.webp"],
+  56:["Images/56%20-%20FireDome%20Lanzador%20de%20ca%CC%81psulas%20retardantes.jpg"],
+  57:["Images/57%20-%20Skyryse%20SkyOS.jpg"],
+  58:["Images/58.1%20-%20Ascent%20AeroSystems%20(Robinson)%20Spirit%20coaxial.jpg","Images/58.2%20-%20Ascent%20AeroSystems%20(Robinson)%20Spirit%20coaxial.webp"],
+  59:["Images/59%20-%20Volatus%20Aerospace%20%C2%B7%20Draganfly%20Servicios%20RPAS%20para%20agencias%20de%20incendios.jpg"],
+  60:["Images/60.1%20-%20JOUAV%20%C2%B7%20Ziyan%20%C2%B7%20XAG%20Helico%CC%81pteros%20no%20tripulados%20y%20multirrotores.webp","Images/60.2%20-%20JOUAV%20%C2%B7%20Ziyan%20%C2%B7%20XAG%20Helico%CC%81pteros%20no%20tripulados%20y%20multirrotores.webp"],
+  61:["Images/61%20-%20Earth%20Fire%20Alliance%20+%20Muon%20Space%20+%20Google%20Research%20FireSat.webp","Images/61.2%20-%20Earth%20Fire%20Alliance%20+%20Muon%20Space%20+%20Google%20Research%20FireSat.jpg"],
+  62:["Images/62.1%20-%20OroraTech%20Wildfire%20Constellation.webp","Images/62.2%20-%20OroraTech%20Wildfire%20Constellation.webp"],
+  63:["Images/63%20-%20NOAA%20Next%20Generation%20Fire%20System%20(NGFS).png"],
+  64:["Images/64%20-%20Agencia%20Espacial%20Canadiense%20+%20NRCan%20WildFireSat.jpg"],
+  65:["Images/65%20-%20Pano%20AI%20Torres%20de%20ca%CC%81maras%20360%C2%B0%20con%20IA%20-%20Axis%20Camera%20over%20South%20Sisters%20forest.jpg.webp"],
+  66:["Images/66%20-%20Robotto%20Algoritmos%20de%20deteccio%CC%81n%20y%20seguimiento%20de%20fuego.jpg"],
+  67:["Images/67%20-%20Copernicus%20EMS%20%C2%B7%20EFFIS%20Sistema%20europeo%20de%20informacio%CC%81n%20de%20incendios.jpg","Images/68%20-%20Copernicus%20EMS%20%C2%B7%20EFFIS%20Sistema%20europeo%20de%20informacio%CC%81n%20de%20incendios.jpg"]
+};
+
+/* ── estado ─────────────────────────────────── */
+let F = {seg:"all", crew:"all", mat:"all", q:"", view:"cards"};
+const imagePosition = {};
+const esc = s => String(s).replace(/[&<>"]/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[x]));
+const gimg = d => "https://www.google.com/search?tbm=isch&q=" + encodeURIComponent(d.n + " " + d.p);
+const imagesFor = i => IMAGE_PATHS[i+1] || [];
+
+function match(d){
+  if(F.seg!=="all" && d.s!==F.seg) return false;
+  if(F.crew!=="all" && d.k!==F.crew && !(F.crew!=="b" && d.k==="b")) return false;
+  if(F.mat!=="all" && d.m!==F.mat) return false;
+  if(F.q){
+    const t = (d.n+" "+d.p+" "+d.c+" "+d.no).toLowerCase();
+    if(!t.includes(F.q.toLowerCase())) return false;
+  }
+  return true;
+}
+const crewLabel = k => k==="u" ? "No tripulado" : k==="m" ? "Tripulado" : "Ambos";
+
+/* ── cabecera ───────────────────────────────── */
+function stats(){
+  const paises = new Set(); D.forEach(d=>d.c.split(/[·,]| y /).forEach(x=>{x=x.trim();if(x&&x.length<24&&!/^\(/.test(x))paises.add(x)}));
+  const u = D.filter(d=>d.k==="u").length, m = D.filter(d=>d.k==="m").length, b = D.filter(d=>d.k==="b").length;
+  const es = D.filter(d=>/España/.test(d.c)).length;
+  document.getElementById("stats").innerHTML = [
+    [D.length,"Sistemas mapeados"],[m,"Tripulados"],[u,"No tripulados"],[b,"Opcionalmente tripulados"],[es,"Con base en España"]
+  ].map(([b,l])=>`<div class="stat"><b>${b}</b><span>${l}</span></div>`).join("");
+}
+
+function ramp(){
+  const el = document.getElementById("ramp");
+  el.innerHTML = Object.entries(M).map(([k,v])=>{
+    const n = D.filter(d=>d.m===k).length;
+    return `<button data-mat="${k}" class="${F.mat===k?"on":""}"><span class="bar" style="background:${v.c}"></span><span class="lbl">${v.l} <span class="n">${n}</span></span></button>`;
+  }).join("");
+  el.querySelectorAll("button").forEach(b=>b.onclick=()=>{F.mat = F.mat===b.dataset.mat ? "all" : b.dataset.mat; ramp(); render();});
+}
+
+function controls(){
+  const el = document.getElementById("controls");
+  const segs = [["all","Todo"]].concat(Object.entries(SEG).map(([k,v])=>[k,v.t]));
+  const crews = [["all","Todos"],["m","Tripulado"],["u","No tripulado"],["b","Ambos"]];
+  el.innerHTML =
+    segs.map(([k,l])=>`<button class="chip ${F.seg===k?"on":""}" data-t="seg" data-v="${k}">${l}</button>`).join("") +
+    `<span class="sep"></span>` +
+    crews.map(([k,l])=>`<button class="chip ${F.crew===k?"on":""}" data-t="crew" data-v="${k}">${l}</button>`).join("") +
+    `<span class="sep"></span>` +
+    `<input type="search" id="q" placeholder="Buscar empresa, país, tecnología..." value="${esc(F.q)}">` +
+    `<button class="chip ${F.view==="table"?"on":""}" id="vw">${F.view==="cards"?"Ver tabla":"Ver fichas"}</button>` +
+    `<button class="chip" id="csv">Exportar CSV</button>`;
+  el.querySelectorAll(".chip[data-t]").forEach(b=>b.onclick=()=>{F[b.dataset.t]=b.dataset.v;controls();render();});
+  const q = document.getElementById("q");
+  q.oninput = e => {F.q = e.target.value; render();};
+  document.getElementById("vw").onclick = ()=>{F.view = F.view==="cards"?"table":"cards"; controls(); render();};
+  document.getElementById("csv").onclick = exportCSV;
+}
+
+/* ── render ─────────────────────────────────── */
+function media(d,i,expanded=false){
+  const imgs = imagesFor(i);
+  const pos = imgs.length ? ((imagePosition[i] || 0) + imgs.length) % imgs.length : 0;
+  imagePosition[i] = pos;
+  const visual = imgs.length
+    ? `<img src="${imgs[pos]}" alt="${esc(d.n)} · ${esc(d.p)} · imagen ${pos+1} de ${imgs.length}" loading="lazy" decoding="async">`
+    : `<span class="ph">Imagen no disponible</span>`;
+  const carousel = imgs.length > 1 ? `
+    <button class="car-btn prev" type="button" data-carousel="${i}" data-dir="-1" aria-label="Imagen anterior de ${esc(d.n)}">‹</button>
+    <button class="car-btn next" type="button" data-carousel="${i}" data-dir="1" aria-label="Imagen siguiente de ${esc(d.n)}">›</button>
+    <span class="car-count" aria-live="polite">${pos+1} / ${imgs.length}</span>` : "";
+  const expand = expanded ? "" : `<button class="expand-btn" type="button" data-open-card="${i}" aria-label="Ampliar ficha de ${esc(d.n)}">⤢&nbsp; Ampliar</button>`;
+  return visual + carousel + expand;
+}
+
+function card(d,i){
+  const mv = M[d.m];
+  return `<article class="card" style="--m:${mv.c}">
+    <div class="shot" data-image-surface="${i}" data-open-card="${i}" role="button" tabindex="0" aria-label="Abrir ficha ampliada de ${esc(d.n)}">${media(d,i)}</div>
+    <div class="cbody">
+      <div class="cname">${esc(d.n)}</div>
+      <div class="cprod">${esc(d.p)}</div>
+      <div class="tags">
+        <span class="tag ${d.k}">${crewLabel(d.k)}</span>
+        <span class="mat">${mv.l}</span>
+      </div>
+      <dl>
+        <dt>País</dt><dd>${esc(d.c)}</dd>
+        <dt>Fundada</dt><dd>${d.f} · ${YEAR-d.f} años</dd>
+        <dt>Tamaño</dt><dd>${esc(d.sz)}</dd>
+        <dt>Capacidad</dt><dd>${esc(d.pl)}</dd>
+      </dl>
+      <p class="note">${esc(d.no)}</p>
+      <div class="links">
+        <a href="${d.u}" target="_blank" rel="noopener">Web</a>
+        <a href="${gimg(d)}" target="_blank" rel="noopener">Buscar foto</a>
+      </div>
+    </div>
+  </article>`;
+}
+
+function render(){
+  const out = document.getElementById("out");
+  const rows = D.map((d,i)=>({d,i})).filter(x=>match(x.d));
+  if(!rows.length){ out.innerHTML = `<p style="margin:60px 0;color:var(--dim);font-family:var(--mono)">Sin resultados. Prueba a limpiar los filtros.</p>`; return; }
+
+  if(F.view==="table"){
+    out.innerHTML = `<div class="seg"><h2>Tabla comparativa</h2><p>Todo el mapa en una vista. Usa Exportar CSV para llevártelo a una hoja de cálculo.</p><span class="cnt">${rows.length} REGISTROS</span></div>
+    <div class="tablewrap"><table><thead><tr>
+      <th>Empresa</th><th>Producto</th><th>País</th><th>Tipo</th><th>Fundada</th><th>Edad</th><th>Tamaño</th><th>Madurez</th><th>Capacidad</th>
+    </tr></thead><tbody>` +
+    rows.map(({d})=>`<tr>
+      <td class="k">${esc(d.n)}</td><td>${esc(d.p)}</td><td>${esc(d.c)}</td>
+      <td>${crewLabel(d.k)}</td><td>${d.f}</td><td>${YEAR-d.f}</td><td>${esc(d.sz)}</td>
+      <td><span class="dot" style="background:${M[d.m].c}"></span>${M[d.m].l}</td><td>${esc(d.pl)}</td>
+    </tr>`).join("") + `</tbody></table></div>`;
+    return;
+  }
+
+  let html = "";
+  Object.entries(SEG).forEach(([k,v])=>{
+    const sub = rows.filter(x=>x.d.s===k);
+    if(!sub.length) return;
+    html += `<section class="seg"><h2>${v.t}</h2><p>${v.d}</p><span class="cnt">${sub.length} REGISTROS</span></section>
+             <div class="grid">${sub.map(x=>card(x.d,x.i)).join("")}</div>`;
+  });
+  out.innerHTML = html;
+}
+
+function updateImageSurfaces(i){
+  const imgs = imagesFor(i);
+  if(!imgs.length) return;
+  const pos = ((imagePosition[i] || 0) + imgs.length) % imgs.length;
+  document.querySelectorAll(`[data-image-surface="${i}"]`).forEach(surface=>{
+    const img = surface.querySelector("img");
+    const count = surface.querySelector(".car-count");
+    if(img){
+      img.src = imgs[pos];
+      img.alt = `${D[i].n} · ${D[i].p} · imagen ${pos+1} de ${imgs.length}`;
+    }
+    if(count) count.textContent = `${pos+1} / ${imgs.length}`;
+  });
+}
+
+function stepImage(i,dir){
+  const imgs = imagesFor(i);
+  if(imgs.length < 2) return;
+  imagePosition[i] = ((imagePosition[i] || 0) + dir + imgs.length) % imgs.length;
+  updateImageSurfaces(i);
+}
+
+const dialog = document.getElementById("card-dialog");
+const dialogShell = document.getElementById("dialog-shell");
+
+function openCard(i){
+  const d = D[i], mv = M[d.m];
+  dialogShell.style.setProperty("--m",mv.c);
+  dialogShell.innerHTML = `
+    <div class="dialog-media" data-image-surface="${i}">${media(d,i,true)}</div>
+    <div class="dialog-body">
+      <button class="dialog-close" type="button" data-close-dialog aria-label="Cerrar ficha ampliada">×</button>
+      <div class="dialog-kicker">Ficha ${i+1} de ${D.length} · ${esc(SEG[d.s].t)}</div>
+      <div class="cname" id="dialog-title">${esc(d.n)}</div>
+      <div class="cprod">${esc(d.p)}</div>
+      <div class="tags">
+        <span class="tag ${d.k}">${crewLabel(d.k)}</span>
+        <span class="mat">${mv.l}</span>
+      </div>
+      <dl>
+        <dt>País</dt><dd>${esc(d.c)}</dd>
+        <dt>Fundada</dt><dd>${d.f} · ${YEAR-d.f} años</dd>
+        <dt>Tamaño</dt><dd>${esc(d.sz)}</dd>
+        <dt>Capacidad</dt><dd>${esc(d.pl)}</dd>
+      </dl>
+      <p class="note">${esc(d.no)}</p>
+      <div class="links">
+        <a href="${esc(d.u)}" target="_blank" rel="noopener">Web</a>
+        <a href="${gimg(d)}" target="_blank" rel="noopener">Buscar foto</a>
+      </div>
+    </div>`;
+  document.body.classList.add("modal-open");
+  if(typeof dialog.showModal === "function") dialog.showModal();
+  else dialog.setAttribute("open","");
+  dialog.querySelector("[data-close-dialog]").focus();
+}
+
+function closeCard(){
+  if(dialog.open && typeof dialog.close === "function") dialog.close();
+  else dialog.removeAttribute("open");
+  document.body.classList.remove("modal-open");
+}
+
+document.addEventListener("click",e=>{
+  const arrow = e.target.closest("[data-carousel]");
+  if(arrow){
+    e.preventDefault();
+    e.stopPropagation();
+    stepImage(Number(arrow.dataset.carousel),Number(arrow.dataset.dir));
+    return;
+  }
+  if(e.target.closest("[data-close-dialog]")){
+    closeCard();
+    return;
+  }
+  const opener = e.target.closest("[data-open-card]");
+  if(opener){
+    e.preventDefault();
+    openCard(Number(opener.dataset.openCard));
+  }
+});
+
+document.addEventListener("keydown",e=>{
+  const opener = e.target.matches && e.target.matches(".shot[data-open-card]") ? e.target : null;
+  if(opener && (e.key === "Enter" || e.key === " ")){
+    e.preventDefault();
+    openCard(Number(opener.dataset.openCard));
+  }
+});
+
+dialog.addEventListener("cancel",()=>document.body.classList.remove("modal-open"));
+dialog.addEventListener("click",e=>{
+  if(e.target === dialog) closeCard();
+});
+
+function exportCSV(){
+  const head = ["Empresa","Producto","Pais","Tipo","Fundada","Edad","Tamano","Madurez","Capacidad","Notas","Web","Foto"];
+  const q = s => '"' + String(s==null?"":s).replace(/"/g,'""') + '"';
+  const body = D.map((d,i)=>({d,i})).filter(({d})=>match(d)).map(({d,i})=>[d.n,d.p,d.c,crewLabel(d.k),d.f,YEAR-d.f,d.sz,M[d.m].l,d.pl,d.no,d.u,imagesFor(i).join(" | ")].map(q).join(","));
+  const csv = "\uFEFF" + [head.map(q).join(",")].concat(body).join("\r\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
+  a.download = "mapa-extincion-aerea.csv"; a.click();
+}
+
+stats(); ramp(); controls(); render();
+</script>
+</body>
+</html>
