@@ -396,71 +396,16 @@ const D = [
  no:"La base informacional sobre la que se activa el Mecanismo de Protección Civil de la UE. Cualquier producto europeo tiene que integrarse aquí, no competir con esto.",u:"https://effis.jrc.ec.europa.eu"}
 ];
 
-/* Las rutas están codificadas para conservar exactamente los nombres de archivo de macOS. */
-const IMAGE_PATHS = {
-  1:["Images/1%20-%20%20Havilland%20Canada%20DHC-515%20Firefighter.jpg"],
-  2:["Images/2%20-%20Canadair_CL-215T_in_Spanish_service_4316.jpg"],
-  3:["Images/3%20-%20Hynaero.jpg"],
-  4:["Images/4%20-%20Air-Tractor-AT-802-1080x675.png","Images/4%20-%20Air_tractor_111209_1.jpg"],
-  5:["Images/5%20-%20Thrush%20Aircraft%20-710pairtoairpostcard1574.jpg"],
-  6:["Images/6%20-%20AVIC%20-%20AG600.jpg"],
-  7:["Images/7%20-%20Beriev%20-%20MChS_Beriev_Be-200_waterbomber.jpg"],
-  8:["Images/8%20-%20airbus%20defence%20and%20space%20firefighter%20%20-%20a400m-firefighter-image.jpg"],
-  9:["Images/9%20-%20Coulson%20aviation%202.jpg","Images/9%20-%20coulson-aviation%20tanker132.jpg"],
-  10:["Images/10%20-%2010_Tanker_Air_Carrier_1975_McDonnell_Douglas_DC-10-30_-_cn_47957_-_201_(30738227600).jpg"],
-  11:["Images/11%20-%20erikson%20aero%20tanker.jpg"],
-  12:["Images/12%20-%20neptune%20aviation.webp"],
-  13:["Images/13%20-%20Conair-Q400AT-2-Photo-Credit-Alexandre-Dubath-Edited.jpg"],
-  14:["Images/14%20-%20Bridger%20Aerospace.jpg"],
-  15:["Images/15%20-%20dauntless_air_-_training_in_mineral_wells_2020_source_dauntless_air.jpg"],
-  16:["Images/16%20-%20IAI%20Fire%20Free%20Forests%201.jpg","Images/16%20-%20IAI%20+%20Fire%20Free%20Forests%202%20-%20Vertical-VA-1X-flight-test-Large.jpg"],
-  17:["Images/17%20-%20Arcus%20Fire%20Pacific%20Aerospace.jpg"],
-  18:["Images/18%20-%20Lockheed_Martin_Firehawk.jpg"],
-  19:["Images/19%20-%20Kaman%20Air%20Vehicles%20K-MAX%20%C2%B7%20K-MAX%20TITAN%20(no%20tripulado)%20.jpg"],
-  20:["Images/20%20-%20Airbus%20Helicopters%20H215%20:%20H225%20Firefighter%201.jpg","Images/20.2%20-%20Airbus%20Helicopters%20H215%20:%20H225%20Firefighter.jpg","Images/20.3%20-%20Airbus%20Helicopters%20H215%20:%20H225%20Firefighter.jpg"],
-  21:["Images/21%20-%20Columbia%20Helicopters%20Chinook%20CH-47%20helitanker.jpg"],
-  22:["Images/22%20-%20PZL%20Mielec%20(Lockheed%20Martin)%20M18%20Dromader.jpg"],
-  23:["Images/23%20-%20Avincis%20Ex%20Helisureste,%20Inaer%20y%20Babcock%20MCS%20-%20Babcock-Salvamento-Maritimo-Espana.jpg"],
-  24:["Images/24.1%20-%20PEGASUS-AERO-GROUP.jpg","Images/24.2%20-%20pegasus.jpg"],
-  30:["Images/30-stinson-phoenix.jpg"],
-  31:["Images/31%20-%20SENECA%20-%20maxresdefault.jpg"],
-  32:["Images/32%20-%20RAIN.jpg"],
-  33:["Images/33%20-%20Anduril%20.avif"],
-  34:["Images/34%20-%20Dryad%20Networks%20Silvanet%20(sensores)%20+%20Silvaguard%20(drones)%20(dron%20para%20detectar%20incendios%20con%20IA).webp","Images/34.2%20-%20(Fire%20detector)%20Dryad-Networks-Wildfire-Detection-Silvanet-Sensor.jpg"],
-  35:["Images/35%20-%20FireSwarm%20Solutions.jpg"],
-  36:["Images/36%20-%20ACC%20Innovation%20Thunder%20Wasp%20-%20The-Thunder-Wasp-GT-is-an-800-kg-MTOW-quadcopter-designed-and-tested-to-lift-payloads-up-to-400-kg-Images-courtesy-of-ACC-Innovation-except-where-stated-otherwise.png","Images/36.2%20-%20ACCInnovation_ThunderWaspGT.jpg"],
-  37:["Images/37%20-%20Data%20Blanket.avif","Images/37.2%20-%20Data%20blanket%202.avif"],
-  38:["Images/38%20-%20marcos%20aerospace.jpg"],
-  39:["Images/39%20-%20Aerowatch%20(deteccio%CC%81n%20de%20incendios).jpg"],
-  40:["Images/40%20-%20AURA%20:%20Windracers%20Environmental%20ULTRA%20+%20enjambre%20autocoordinado.jpg"],
-  41:["Images/41%20-%20PyrStop.png"],
-  42:["Images/42%20-%20flare-X%20-%20AIVE%20AI%20Systems.jpg"],
-  43:["Images/43.1%20-%20AGNI%20-%20uavs-in-firefighting%20(1).jpg","Images/43.2%20-%20AGNI.webp"],
-  44:["Images/44%20-%20Cross%20Fire%20Univ%20of%20Maryland.jpg","Images/44%20-%20Crossfire%20(University%20of%20Maryland).jpg"],
-  45:["Images/45%20-%20Ember%20Flash%20Aerospace%20-%20Detect%20fires.jpg"],
-  46:["Images/46%20-%20FlameJackets%20(Georgia%20Tech%20+%20Cobra%20AERO).webp"],
-  47:["Images/47%20-%20Wildfire%20Quest%20(secondary%20school%20project).jpg"],
-  48:["Images/48%20-%20raindrops-main-figure-post-selection-v1-b-hd.webp"],
-  49:["Images/49%20-%20Fire%20Foresight.png"],
-  50:["Images/50%20-%20Singular%20Aircraft%20FLYOX%20I.jpg"],
-  51:["Images/51%20-%20Drone%20Hopper%20Wyvern.jpg"],
-  52:["Images/52%20-%20Rotor%20Technologies%20R550X%20Sprayhawk%20DSC07393_EDIT2-scaled.jpg"],
-  53:["Images/53%20-%20EHang%20EH216-F.webp"],
-  54:["Images/54%20-%20Drone%20Amplified%20IGNIS.jpg"],
-  55:["Images/55%20-%20Parallel%20Flight%20Technologies%20Firefly.webp"],
-  56:["Images/56%20-%20FireDome%20Lanzador%20de%20ca%CC%81psulas%20retardantes.jpg"],
-  57:["Images/57%20-%20Skyryse%20SkyOS.jpg"],
-  58:["Images/58.1%20-%20Ascent%20AeroSystems%20(Robinson)%20Spirit%20coaxial.jpg","Images/58.2%20-%20Ascent%20AeroSystems%20(Robinson)%20Spirit%20coaxial.webp"],
-  59:["Images/59%20-%20Volatus%20Aerospace%20%C2%B7%20Draganfly%20Servicios%20RPAS%20para%20agencias%20de%20incendios.jpg"],
-  60:["Images/60.1%20-%20JOUAV%20%C2%B7%20Ziyan%20%C2%B7%20XAG%20Helico%CC%81pteros%20no%20tripulados%20y%20multirrotores.webp","Images/60.2%20-%20JOUAV%20%C2%B7%20Ziyan%20%C2%B7%20XAG%20Helico%CC%81pteros%20no%20tripulados%20y%20multirrotores.webp"],
-  61:["Images/61%20-%20Earth%20Fire%20Alliance%20+%20Muon%20Space%20+%20Google%20Research%20FireSat.webp","Images/61.2%20-%20Earth%20Fire%20Alliance%20+%20Muon%20Space%20+%20Google%20Research%20FireSat.jpg"],
-  62:["Images/62.1%20-%20OroraTech%20Wildfire%20Constellation.webp","Images/62.2%20-%20OroraTech%20Wildfire%20Constellation.webp"],
-  63:["Images/63%20-%20NOAA%20Next%20Generation%20Fire%20System%20(NGFS).png"],
-  64:["Images/64%20-%20Agencia%20Espacial%20Canadiense%20+%20NRCan%20WildFireSat.jpg"],
-  65:["Images/65%20-%20Pano%20AI%20Torres%20de%20ca%CC%81maras%20360%C2%B0%20con%20IA%20-%20Axis%20Camera%20over%20South%20Sisters%20forest.jpg.webp"],
-  66:["Images/66%20-%20Robotto%20Algoritmos%20de%20deteccio%CC%81n%20y%20seguimiento%20de%20fuego.jpg"],
-  67:["Images/67%20-%20Copernicus%20EMS%20%C2%B7%20EFFIS%20Sistema%20europeo%20de%20informacio%CC%81n%20de%20incendios.jpg","Images/68%20-%20Copernicus%20EMS%20%C2%B7%20EFFIS%20Sistema%20europeo%20de%20informacio%CC%81n%20de%20incendios.jpg"]
-};
+/* Copias web optimizadas con rutas ASCII estables en macOS, Linux y Vercel. */
+const IMAGE_COUNTS = [1,1,1,2,1,1,1,1,2,1,1,1,1,1,1,2,1,1,1,3,1,1,1,2,0,0,0,0,0,1,1,1,1,2,1,2,2,1,1,1,1,1,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,2,2,2,1,1,1,1,2];
+const IMAGE_PATHS = Object.fromEntries(
+  IMAGE_COUNTS.map((count,index)=>[
+    index+1,
+    Array.from({length:count},(_,imageIndex)=>
+      `web-images/card-${String(index+1).padStart(3,"0")}-${String(imageIndex+1).padStart(2,"0")}.jpg`
+    )
+  ]).filter(([,paths])=>paths.length)
+);
 
 /* ── estado ─────────────────────────────────── */
 let F = {seg:"all", crew:"all", mat:"all", q:"", view:"cards"};
