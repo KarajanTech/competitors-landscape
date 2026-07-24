@@ -227,7 +227,7 @@ section{scroll-margin-top:70px}
   </section>
 
   <footer>
-    Fuentes principales: XPRIZE Wildfire (libros de equipos semifinalistas y finalistas 2025 y 2026), Vertical Magazine, Aerospace Testing International, AerialFire, FlightGlobal, Global Market Insights, Mordor Intelligence, Persistence Market Research, Comisión Europea (rescEU), TED (licitaciones públicas españolas), Muon Space, Earth Fire Alliance, De Havilland Canada, Hynaero, Hongfei Aviation, Daidelos y notas de prensa corporativas.<br><br>
+    Fuentes principales: XPRIZE Wildfire (libros de equipos semifinalistas y finalistas 2025 y 2026), Vertical Magazine, Aerospace Testing International, AerialFire, FlightGlobal, Global Market Insights, Mordor Intelligence, Persistence Market Research, Comisión Europea (rescEU), TED (licitaciones públicas españolas), Muon Space, Earth Fire Alliance, De Havilland Canada, Hynaero, Hongfei Aviation, Daidelos, IQ FireWatch, Bee2Fire, Pano AI, OIV, FireTracking, Seitech y notas de prensa corporativas.<br><br>
     Las capitalizaciones y valoraciones se mueven: verifica antes de citarlas. Los datos marcados con ~ son estimaciones. Documento actualizado el 23 de julio de 2026.
   </footer>
 </div>
@@ -249,7 +249,8 @@ const SEG = {
   plat:{t:"Plataformas tripuladas",d:"Los fabricantes que construyen el avión o el helicóptero. Aquí está el dinero grande y los ciclos de 10 años."},
   op:{t:"Operadores de servicio",d:"Quien vuela realmente. En España y Europa este es el cliente y, a la vez, el guardián de la puerta."},
   auto:{t:"Supresión autónoma",d:"El campo de batalla actual. Casi todo pre-semilla o Serie A, con la excepción de Anduril y Seneca."},
-  det:{t:"Capa de detección",d:"Satélites, sensores y torres. Es el disparador de todo el sistema y ya está resuelto por otros."}
+  det:{t:"Detección remota y sensórica",d:"Satélites, sensores y software embarcado. Es la capa que identifica, localiza y sigue el incendio desde el aire o el espacio."},
+  cam:{t:"Cámaras de detección temprana",d:"Cámaras panorámicas, IA visual y centros de control para localizar humo o fuego durante los primeros minutos."}
 };
 
 const D = [
@@ -392,16 +393,28 @@ const D = [
  no:"Enfoque opuesto a FireSat: no lanza satélites nuevos, pone algoritmos mejores sobre la infraestructura geoestacionaria existente. Detección en minutos con resolución más gruesa. Paso a operativo pleno previsto para finales de 2026.",u:"https://www.nesdis.noaa.gov"},
 {s:"det",n:"Agencia Espacial Canadiense + NRCan",p:"WildFireSat",c:"Canadá",k:"u",f:2021,sz:"Público",m:"concepto",pl:"7 microsatélites · 200 m",
  no:"Lanzamiento previsto en 2029. Diseñado para medir el comportamiento del fuego al final de la tarde, cuando la actividad es máxima, más que para detección temprana.",u:"https://www.asc-csa.gc.ca"},
-{s:"det",n:"Pano AI",p:"Torres de cámaras 360° con IA",c:"EE.UU., Canadá y Australia",k:"u",f:2020,sz:"Cerca de 90 M$ levantados",m:"servicio",pl:"Detección visual y triangulación",
- no:"El referente comercial de detección terrestre. Vende sobre todo a utilities. Demuestra que la capa de detección ya es un negocio con ingresos recurrentes reales, mientras la de supresión todavía no lo es.",u:"https://www.pano.ai"},
+{s:"cam",n:"Pano AI",p:"Pano Rapid Detect",c:"EE.UU., Canadá y Australia",k:"u",f:2020,sz:"Cerca de 90 M$ levantados",m:"servicio",pl:"360° cada minuto · zoom óptico 30×",
+ no:"Estaciones con dos cámaras de 6 MP, panorama de 360° cada minuto, detección diurna y nocturna, triangulación y validación humana 24/7. Es una excelente referencia técnica para utilities y administraciones; antes de plantear un piloto habría que confirmar disponibilidad, cobertura y soporte en España.",u:"https://www.pano.ai/solution"},
 {s:"det",n:"Robotto",p:"Algoritmos de detección y seguimiento de fuego",c:"Dinamarca",k:"u",f:2019,sz:"Startup",m:"servicio",pl:"Software sobre dron",
  no:"Miembro del consorcio AeroWatch. Especializado en visión embarcada para localizar y seguir el frente de fuego desde plataformas no tripuladas.",u:"https://robotto.ai"},
 {s:"det",n:"Copernicus EMS · EFFIS",p:"Sistema europeo de información de incendios",c:"Unión Europea",k:"u",f:1998,sz:"Público",m:"servicio",pl:"Cartografía y evaluación de daños",
- no:"La base informacional sobre la que se activa el Mecanismo de Protección Civil de la UE. Cualquier producto europeo tiene que integrarse aquí, no competir con esto.",u:"https://effis.jrc.ec.europa.eu"}
+ no:"La base informacional sobre la que se activa el Mecanismo de Protección Civil de la UE. Cualquier producto europeo tiene que integrarse aquí, no competir con esto.",u:"https://effis.jrc.ec.europa.eu"},
+
+/* ── CÁMARAS DE DETECCIÓN TEMPRANA ───────────────────── */
+{s:"cam",n:"IQ Technologies · IQ FireWatch",p:"Sistema automático de detección temprana",c:"Alemania (Berlín) · presencia internacional",k:"u",f:1999,sz:"Privada · 51 a 200 empleados · más de 200 sistemas",m:"servicio",pl:"Humo y calor en tiempo real",
+ no:"Sistema europeo integral de cámara óptica rotatoria, detección automática de humo y firmas térmicas, geolocalización y centro de control. La empresa declara más de 200 instalaciones en ocho estados alemanes y presencia en cuatro continentes. Es la primera opción para estudiar un piloto serio en España.",u:"https://www.iq-firewatch.com/"},
+{s:"cam",n:"Bee2Fire",p:"Bee2FireDetection · Predict",c:"Portugal (Almada) · despliegues internacionales",k:"u",f:2017,sz:"Privada · 11 a 50 empleados",m:"servicio",pl:"Hasta 15 km · operación 24/7",
+ no:"Plataforma portuguesa de IA visual y análisis térmico que admite cámaras fijas, móviles o ya instaladas. Centraliza detección, verificación, apoyo operativo y predicción de propagación desde un centro de control. Por cercanía geográfica y capacidad de integración es una de las opciones más naturales para un piloto ibérico.",u:"https://www.bee2firedetection.com/"},
+{s:"cam",n:"OIV",p:"Fire Detect AI",c:"Croacia (Zagreb)",k:"u",f:1926,sz:"Empresa pública de infraestructura y telecomunicaciones",m:"servicio",pl:"10 km automático · 25 km manual · zoom 32×",
+ no:"Sistema integral con cámaras panorámicas Full HD 360°, detección de humo de día y fuego de noche, centro de operaciones y confirmación humana 24/7. Integra geolocalización, simulaciones de propagación y vídeo en directo para las brigadas. Es una alternativa europea ya desplegada sobre la red de torres croata.",u:"https://oiv.hr/en/services-and-platforms/oiv-fire-detect-ai/"},
+{s:"cam",n:"FireTracking",p:"IA de detección sobre cámaras existentes",c:"Francia (París) y Nueva Caledonia",k:"u",f:2020,sz:"Privada · 2 a 10 empleados · más de 1.000 km² monitorizados",m:"servicio",pl:"Menos de 3 min · 20 km · precisión inferior a 100 m",
+ no:"Software europeo que analiza vídeo de cámaras nuevas o ya instaladas en torres y otros puntos elevados. Declara detección en menos de tres minutos, localización inferior a 100 m a 20 km y menos del 10 % de falsas alarmas, sin necesitar supervisión humana permanente. Interesante para conservar el control del hardware.",u:"https://www.firetracking.io/en/solution"},
+{s:"cam",n:"Seitech · Grupo Apave",p:"Vulture",c:"España (Madrid) · Península Ibérica",k:"u",f:2017,sz:"80 empleados · integrada en Grupo Apave desde 2025",m:"servicio",pl:"1.000 a 3.000 ha por cámara",
+ no:"Solución española de visión artificial con red neuronal propia para detectar humo y fuego en fases tempranas. Añade alertas configurables por llamada, SMS, WhatsApp o Telegram, historial y gestión desde plataforma, y puede integrarse con cámaras IP o RTSP existentes. Es el contacto más directo para soporte local; conviene pedir referencias de campo y métricas de falsas alarmas.",u:"https://seitech.es/en/vulture/"}
 ];
 
 /* Copias web optimizadas con rutas ASCII estables en macOS, Linux y Vercel. */
-const IMAGE_COUNTS = [1,1,1,2,1,1,1,1,2,1,1,1,1,1,1,2,1,1,1,3,1,1,1,2,0,0,0,0,0,1,1,1,1,2,1,2,2,1,1,1,1,1,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,2,2,1,2,2,1,1,1,1,2];
+const IMAGE_COUNTS = [1,1,1,2,1,1,1,1,2,1,1,1,1,1,1,2,1,1,1,3,1,1,1,2,0,0,0,0,0,1,1,1,1,2,1,2,2,1,1,1,1,1,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,2,2,1,2,2,1,1,1,1,2,1,1,1,1,1];
 const IMAGE_PATHS = Object.fromEntries(
   IMAGE_COUNTS.map((count,index)=>[
     index+1,
